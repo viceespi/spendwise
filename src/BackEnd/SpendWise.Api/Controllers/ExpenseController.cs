@@ -23,7 +23,7 @@ namespace SpendWise.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateExpense(NewExpenseDTO newExpenseDTO)
+        public async Task<IActionResult> CreateExpense([FromBody] NewExpenseDTO newExpenseDTO)
         {
             Result<Guid> inputResult = await _expenseServices.CreateExpense(newExpenseDTO);
             return inputResult.Match<IActionResult>
@@ -50,21 +50,21 @@ namespace SpendWise.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetExpense(Guid id)
+        public async Task<IActionResult> GetExpense([FromRoute] Guid id)
         {
             Expense? expense = await _expenseServices.GetExpense(id);
             return expense is not null ? Ok(expense) : NotFound();
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteExpense(Guid id)
+        public async Task<IActionResult> DeleteExpense([FromRoute] Guid id)
         {
             await _expenseServices.DeleteExpense(id);
             return Ok();
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateExpense(ToUpdateExpenseDTO toUpdateExpenseDTO)
+        public async Task<IActionResult> UpdateExpense([FromBody] ToUpdateExpenseDTO toUpdateExpenseDTO)
         {
             Result<string> inputResult = await _expenseServices.UpdateExpense(toUpdateExpenseDTO);
             return inputResult.Match<IActionResult>
