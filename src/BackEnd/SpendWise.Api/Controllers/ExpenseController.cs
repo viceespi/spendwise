@@ -53,7 +53,14 @@ namespace SpendWise.Api.Controllers
         public async Task<IActionResult> GetExpense(Guid id)
         {
             Expense? expense = await _expenseServices.GetExpense(id);
-            return expense is not null? Ok(expense) : NotFound();
+            return expense is not null ? Ok(expense) : NotFound();
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteExpense(Guid id)
+        {
+            await _expenseServices.DeleteExpense(id);
+            return Ok();
         }
     }
 }
