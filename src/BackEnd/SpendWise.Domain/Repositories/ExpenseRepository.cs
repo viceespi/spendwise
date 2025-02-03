@@ -46,6 +46,18 @@ namespace SpendWise.Domain.Repositories
             return expenseId;
         }
 
+        public async Task DeleteExpense(Guid expenseId)
+        {
+            const string sqlOrder =
+            @"
+                DELETE
+                FROM
+                expenses;
+            ";
+
+            await _connection.ExecuteAsync(sqlOrder);
+        }
+
         public async Task<List<Expense>> GetAllExpenses()
         {
             const string sqlOrder =

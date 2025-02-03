@@ -13,6 +13,8 @@ namespace SpendWise.Domain.Services.Contracts
 
         Task<List<Expense>> GetAllExpenses();
 
-        Task<Expense?> GetExpense(Guid expenseId);
+        Task<Expense?> GetExpense(Guid expenseId); 
+
+        Task DeleteExpense(Guid expenseId);
     }
 }

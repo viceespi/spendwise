@@ -42,6 +42,11 @@ namespace SpendWise.Domain.Services
             );
         }
 
+        public async Task DeleteExpense(Guid expenseId)
+        {
+            await _repository.DeleteExpense(expenseId);
+        }
+
         public async Task<List<Expense>> GetAllExpenses()
         {
             List<Expense> expenses = await _repository.GetAllExpenses();
