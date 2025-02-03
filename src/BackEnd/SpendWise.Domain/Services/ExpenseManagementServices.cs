@@ -42,5 +42,16 @@ namespace SpendWise.Domain.Services
             );
         }
 
+        public async Task<List<Expense>> GetAllExpenses()
+        {
+            List<Expense> expenses = await _repository.GetAllExpenses();
+            return expenses;
+        }
+
+        public async Task<Expense?> GetExpense(Guid expenseId)
+        {
+            Expense? expense = await _repository.GetExpense(expenseId);
+            return expense;
+        }
     }
 }

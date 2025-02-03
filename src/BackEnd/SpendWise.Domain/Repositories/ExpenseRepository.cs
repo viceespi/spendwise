@@ -38,12 +38,45 @@ namespace SpendWise.Domain.Repositories
             ";
 
             Guid expenseId = await _connection.QueryFirstAsync<Guid>(sqlOrder, new
-                {
-                    Description = expense.Description,
-                    Date = expense.Date,
-                    Amount = expense.Amount
-                });
-                return expenseId;
+            {
+                Description = expense.Description,
+                Date = expense.Date,
+                Amount = expense.Amount
+            });
+            return expenseId;
+        }
+
+        public async Task<List<Expense>> GetAllExpenses()
+        {
+            const string sqlOrder =
+            @"
+                SELECT
+                *
+                FROM
+                expenses;
+            ";
+
+            List<Expense> expenses = (await _connection.QueryAsync<Expense>(sqlOrder)).ToList();
+            return expenses;
+        }
+
+        public async Task<Expense?> GetExpense(Guid expenseId)
+        {
+            const string sqlOrder =
+            @"
+                SELECT
+                *
+                FROM
+                expenses
+                WHERE
+                expense_id = @Id
+            ";
+
+            Expense? expense = await _connection.QueryFirstOrDefaultAsync<Expense>(sqlOrder, new
+            {
+                Id = expenseId
+            });
+            return expense;
         }
     }
 }

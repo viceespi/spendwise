@@ -9,5 +9,9 @@ namespace SpendWise.Domain.Repositories.Contracts
     public interface IExpenseRepository
     {
         Task<Guid> CreateNewExpense(Expense expense);
+
+        Task<List<Expense>> GetAllExpenses();
+
+        Task<Expense?> GetExpense(Guid expenseId);
     }
 }

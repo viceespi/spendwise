@@ -41,5 +41,19 @@ namespace SpendWise.Api.Controllers
 
             );
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllExpenses()
+        {
+            List<Expense> expenses = await _expenseServices.GetAllExpenses();
+            return Ok(expenses);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetExpense(Guid id)
+        {
+            Expense? expense = await _expenseServices.GetExpense(id);
+            return expense is not null? Ok(expense) : NotFound();
+        }
     }
 }

@@ -10,5 +10,9 @@ namespace SpendWise.Domain.Services.Contracts
     public interface IExpenseManagementServices
     {
         Task<Result<Guid>> CreateExpense(NewExpenseDTO newExpenseDTO);
+
+        Task<List<Expense>> GetAllExpenses();
+
+        Task<Expense?> GetExpense(Guid expenseId);
     }
 }
