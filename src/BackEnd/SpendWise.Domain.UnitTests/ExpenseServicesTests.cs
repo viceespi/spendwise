@@ -47,7 +47,7 @@ namespace SpendWise.Domain.UnitTests
         }
 
         [Fact]
-        public async Task ValidateExpense_InputIsInvalid_ReturnsAnyErrors()
+        public async Task CreateNewExpense_InputIsInvalid_ReturnsAnyErrors()
         {
             // Arrange
 
@@ -169,6 +169,72 @@ namespace SpendWise.Domain.UnitTests
             // Assert
 
             Assert.Empty(testExpenses);
+
+        }
+
+        [Fact]
+        public async Task UpdateExpense_InputIsValid_ReturningUpdatedMessage()
+        {
+
+            // Arrange
+
+            ExpenseManagementServices expenseServices = new(expenseFactory, expenseRepository);
+
+            string description = "NenegaCalamitosa";
+            DateTime date = new DateTime(2024, 9, 29);
+            decimal amount = 20;
+            Guid id = Guid.NewGuid();
+
+            ToUpdateExpenseDTO toUpdateExpenseDTO = new(description, date, amount, id);
+
+            Expense factoryExpense = new(description, date, amount, id);
+            Result<Expense> factoryInputResult = new(factoryExpense);
+
+            const string expectedMessage = "Expense updated";
+
+
+            expenseFactory.CreateExpenseFromToUpdateExpenseDTO(Arg.Any<ToUpdateExpenseDTO>()).Returns(factoryInputResult);
+
+
+            // Act
+
+            Result<string> serviceResult = await expenseServices.UpdateExpense(toUpdateExpenseDTO);
+
+            // Assert
+
+            Assert.True(serviceResult.ValidationErrors is null);
+            Assert.Equal(expectedMessage, serviceResult.OperationResult);
+
+        }
+
+        [Fact]
+        public async Task UpdateExpense_InputIsInvalid_ReturnsAnyErrors()
+        {
+            // Arrange
+
+            ExpenseManagementServices expenseServices = new(expenseFactory, expenseRepository);
+            ValidationErrors errors = new();
+            errors.Errors.Add("There are errors");
+            Result<Expense> factoryInputResult = new(errors);
+
+
+            string description = "";
+            DateTime date = new DateTime(2024, 9, 29);
+            decimal amount = 20;
+            Guid id = Guid.NewGuid();
+
+
+            ToUpdateExpenseDTO toUpdateExpenseDTO = new(description, date, amount, id);
+
+            expenseFactory.CreateExpenseFromToUpdateExpenseDTO(Arg.Any<ToUpdateExpenseDTO>()).Returns(factoryInputResult);
+
+            // Act 
+
+            Result<string> factoryResult = await expenseServices.UpdateExpense(toUpdateExpenseDTO);
+
+            // Assert
+
+            Assert.NotNull(factoryResult.ValidationErrors);
 
         }
     }

@@ -18,9 +18,9 @@ namespace SpendWise.Domain.Factories
             this._validator = validator;
         }
 
-        public Result<Expense> CreateExpenseFromNewExpenseDTO(NewExpenseDTO expense)
+        public Result<Expense> CreateExpenseFromNewExpenseDTO(NewExpenseDTO newExpenseDTO)
         {
-            Expense newExpense = new(expense.Description, expense.Date, expense.Amount, Guid.Empty);
+            Expense newExpense = new(newExpenseDTO.Description, newExpenseDTO.Date, newExpenseDTO.Amount, Guid.Empty);
             ValidationErrors expenseValidation = this._validator.Validate(newExpense);
             if (expenseValidation.HasError)
             {
@@ -28,6 +28,19 @@ namespace SpendWise.Domain.Factories
                 return failedInputResult;
             }
             Result<Expense> successfullInputResult = new(newExpense);
+            return successfullInputResult;
+        }
+
+        public Result<Expense> CreateExpenseFromToUpdateExpenseDTO(ToUpdateExpenseDTO toUpdateExpenseDTO)
+        {
+            Expense updatedExpense = new(toUpdateExpenseDTO.Description, toUpdateExpenseDTO.Date, toUpdateExpenseDTO.Amount, toUpdateExpenseDTO.Id);
+            ValidationErrors expenseValidation = this._validator.Validate(updatedExpense);
+            if (expenseValidation.HasError)
+            {
+                Result<Expense> failedInputResult = new (expenseValidation); 
+                return failedInputResult;
+            }
+            Result<Expense> successfullInputResult = new(updatedExpense);
             return successfullInputResult;
         }
 

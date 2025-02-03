@@ -145,5 +145,59 @@ namespace SpendWise.Api.UnitTests
 
             Assert.IsType<OkObjectResult>(controllerResult);
         }
+
+        [Fact]
+        public async Task UpdateExpense_InputIsValid_ReturningOk()
+        {
+
+            // Arrange
+            ExpensesController expenseController = new(expenseServices);
+
+            string description = "NenegaCalamitosa";
+            DateTime date = new DateTime(2024, 9, 29);
+            decimal amount = 20;
+            Guid id = Guid.NewGuid();
+            string expectedMessage = "Expense updated";
+            Result<string> expectedResult = new(expectedMessage);
+
+            ToUpdateExpenseDTO expenseDTO = new(description, date, amount, id);
+
+            expenseServices.UpdateExpense(Arg.Any<ToUpdateExpenseDTO>()).Returns(Task.FromResult(expectedResult));
+
+            // Act
+
+            IActionResult controllerResult = await expenseController.UpdateExpense(expenseDTO);
+
+            // Assert
+
+            Assert.IsType<OkObjectResult>(controllerResult);
+        }
+
+        [Fact]
+        public async Task UpdateExpense_InputIsInvalid_ReturningBadRequest()
+        {
+
+            // Arrange
+            ExpensesController expenseController = new(expenseServices);
+
+            string description = "";
+            DateTime date = new DateTime(2024, 9, 29);
+            decimal amount = 20;
+            ValidationErrors errors = new();
+            errors.Errors.Add("Has error");
+            Result<Guid> expectedResult = new(errors);
+
+            NewExpenseDTO expenseDTO = new(description, date, amount);
+
+            expenseServices.CreateExpense(Arg.Any<NewExpenseDTO>()).Returns(Task.FromResult(expectedResult));
+
+            // Act
+
+            IActionResult controllerResult = await expenseController.CreateExpense(expenseDTO);
+
+            // Assert
+
+            Assert.IsType<BadRequestObjectResult>(controllerResult);
+        }
     }
 }

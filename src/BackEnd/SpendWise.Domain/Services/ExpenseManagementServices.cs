@@ -34,9 +34,9 @@ namespace SpendWise.Domain.Services
                     return successfullInputResult;
                 }
                 ,
-                (validationResult) =>
+                (validationErrors) =>
                 {
-                    var failedInputResult = new Result<Guid>(validationResult);
+                    var failedInputResult = new Result<Guid>(validationErrors);
                     return Task.FromResult(failedInputResult);
                 }
             );
@@ -57,6 +57,26 @@ namespace SpendWise.Domain.Services
         {
             Expense? expense = await _repository.GetExpense(expenseId);
             return expense;
+        }
+
+        public async Task<Result<string>> UpdateExpense(ToUpdateExpenseDTO toUpdateExpenseDTO)
+        {
+            Result<Expense> newExpenseResult = _factory.CreateExpenseFromToUpdateExpenseDTO(toUpdateExpenseDTO);
+            return await newExpenseResult.Match
+            (
+                async (expense) =>
+                {
+                    await _repository.UpdateExpense(expense);
+                    Result<string> result = new("Expense updated");
+                    return result;
+                }
+                ,
+                (validationErrors) =>
+                {
+                    var failedInputResult = new Result<string>(validationErrors);
+                    return Task.FromResult(failedInputResult);
+                }
+            );
         }
     }
 }

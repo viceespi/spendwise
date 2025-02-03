@@ -16,5 +16,7 @@ namespace SpendWise.Domain.Services.Contracts
         Task<Expense?> GetExpense(Guid expenseId); 
 
         Task DeleteExpense(Guid expenseId);
+
+        Task<Result<string>> UpdateExpense(ToUpdateExpenseDTO toUpdateExpenseDTO);
     }
 }

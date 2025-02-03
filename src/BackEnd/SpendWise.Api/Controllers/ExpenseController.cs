@@ -56,11 +56,31 @@ namespace SpendWise.Api.Controllers
             return expense is not null ? Ok(expense) : NotFound();
         }
 
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteExpense(Guid id)
         {
             await _expenseServices.DeleteExpense(id);
             return Ok();
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> UpdateExpense(ToUpdateExpenseDTO toUpdateExpenseDTO)
+        {
+            Result<string> inputResult = await _expenseServices.UpdateExpense(toUpdateExpenseDTO);
+            return inputResult.Match<IActionResult>
+            (
+
+                successMessage =>
+                {
+                    return Ok(successMessage);
+                }
+                ,
+                validationError =>
+                {
+                    return BadRequest(validationError.Errors);
+                }
+
+            );
         }
     }
 }

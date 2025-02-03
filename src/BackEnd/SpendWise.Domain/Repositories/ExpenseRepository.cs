@@ -90,5 +90,28 @@ namespace SpendWise.Domain.Repositories
             });
             return expense;
         }
+
+        public async Task UpdateExpense(Expense toUpdateExpense)
+        {
+            const string sqlOrder =
+            @"
+                UPDATE expenses
+                SET 
+                expense_id = @ExpenseId
+                description = @Description,
+                date = @Date,
+                amount = @Amount
+                WHERE 
+                expense_id = @ExpenseId;
+            ";
+
+            await _connection.ExecuteAsync(sqlOrder, new
+            {
+                Description = toUpdateExpense.Description,
+                Date = toUpdateExpense.Date,
+                Amount = toUpdateExpense.Amount,
+                ExpenseId = toUpdateExpense.Id
+            });
+        }
     }
 }

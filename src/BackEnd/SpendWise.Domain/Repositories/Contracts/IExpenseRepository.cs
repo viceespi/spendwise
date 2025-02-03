@@ -15,5 +15,7 @@ namespace SpendWise.Domain.Repositories.Contracts
         Task<Expense?> GetExpense(Guid expenseId);
 
         Task DeleteExpense(Guid expenseId);
+
+        Task UpdateExpense(Expense toUpdateExpense);
     }
 }

@@ -9,7 +9,9 @@ namespace SpendWise.Domain.Factories.Contracts
 {
     public interface IExpenseFactory
     {
-        Result<Expense> CreateExpenseFromNewExpenseDTO(NewExpenseDTO expense);
+        Result<Expense> CreateExpenseFromNewExpenseDTO(NewExpenseDTO newExpenseDTO);
+
+        Result<Expense> CreateExpenseFromToUpdateExpenseDTO(ToUpdateExpenseDTO toUpdateExpenseDTO);
         
     }
 }
