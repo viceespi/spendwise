@@ -1,0 +1,86 @@
+---
+import Button from "./Button.astro";
+
+interface Props {
+  buttonName?: string;
+  awesomeIconClass?: string;
+  buttonClass:
+    | "signInBtn"
+    | "mainHeaderBtn"
+    | "expenseHeaderBtn"
+    | "expenseHeaderEditBtn"
+    | "expenseLineEditBtn"
+    | "columnBtn"
+    | "columnElementBtn"
+    | "columnElementEditBtn"
+    | "modalBtn"
+    | "mobileActionBarBtn";
+  buttonId: string;
+  modalId: string;
+  modalCloseButtonId: string;
+  modalWidth: string;
+}
+
+const {
+  buttonName,
+  buttonId,
+  buttonClass,
+  modalId,
+  modalCloseButtonId,
+  awesomeIconClass,
+  modalWidth,
+} = Astro.props;
+---
+
+<Button
+  buttonName={buttonName}
+  awesomeIconClass={awesomeIconClass}
+  buttonId={buttonId}
+  buttonClass={buttonClass}
+  buttonType="button"
+/>
+
+<dialog id={modalId} class="Modal">
+  <div class="modal-content">
+    <slot />
+    <Button
+      buttonName="Close"
+      buttonId={modalCloseButtonId}
+      buttonClass="modalBtn"
+      buttonType="button"
+    />
+  </div>
+</dialog>
+
+<style
+  define:vars={{
+    modalWidth: modalWidth,
+  }}
+>
+  .Modal {
+    background-color: #d5b690;
+    border-radius: 10px;
+    width: var(--modalWidth);
+  }
+
+  .modal-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+</style>
+
+<script define:vars={{ buttonId, modalId, modalCloseButtonId }}>
+  const modalButton = document.getElementById(buttonId);
+  const closeModalButton = document.getElementById(modalCloseButtonId);
+  const modal = document.getElementById(modalId);
+
+  modalButton.addEventListener("click", () => {
+    modal.showModal();
+  });
+
+  closeModalButton.addEventListener("click", () => {
+    modal.close();
+  });
+</script>

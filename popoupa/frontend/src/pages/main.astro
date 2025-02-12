@@ -1,0 +1,2475 @@
+---
+import UserLayout from "../layouts/UserLayout.astro";
+import Button from "../components/Button.astro";
+import ExpenseLine from "../components//ExpenseLine.astro";
+import { ExpenseModelMapper } from "../lib/view-models/expense-model";
+import { ExpenseService } from "../lib/services/expense-service";
+import { GroupService } from "../lib/services/group-service";
+import { CategoryService } from "../lib/services/category-service";
+import { FilterService } from "../lib/services/filter-service";
+import ModalButton from "../components/ModalButton.astro";
+import { UserServices } from "../lib/services/user-service";
+import type { User } from "../lib/models/user";
+import NewGroupModal from "../components/NewGroupModal.astro";
+
+const groupServices = new GroupService();
+const expenseServices = new ExpenseService();
+const categoryServices = new CategoryService();
+const filterServices = new FilterService();
+const expenseMapper = new ExpenseModelMapper();
+const userServices = new UserServices();
+
+var currentUser = await userServices.getCurrentUser();
+var demoUser: User = {
+  userName: "Angus",
+  userEmail: "Angus@barkmail.com",
+  userId: "3376322c-4657-4a3c-b4fc-3b713e2ba894",
+};
+currentUser = demoUser;
+
+var demoUser1: User = {
+  userName: "Vicenzo",
+  userEmail: "viceespi@outlook.com",
+  userId: "0006322c-4657-4a3c-b4fc-3b713e2ba894",
+};
+var demoUser2: User = {
+  userName: "Thadeu",
+  userEmail: "thfsilvab@outlook.com",
+  userId: "0000322c-4657-4a3c-b4fc-3b713e2ba894",
+};
+var demoUser3: User = {
+  userName: "Nina",
+  userEmail: "nenega@barkmail.com",
+  userId: "0000022c-4657-4a3c-b4fc-3b713e2ba894",
+};
+var demoUser4: User = {
+  userName: "Orion",
+  userEmail: "popocão@barkmail.com",
+  userId: "0000002c-4657-4a3c-b4fc-3b713e2ba894",
+};
+var demoUser5: User = {
+  userName: "Orion1",
+  userEmail: "popocão@barkmail.com",
+  userId: "0000002c-4657-4a3c-b4fc-3b713e2ba894",
+};
+var demoUser6: User = {
+  userName: "Orio2",
+  userEmail: "popocão@barkmail.com",
+  userId: "0000002c-4657-4a3c-b4fc-3b713e2ba894",
+};
+var demoUser7: User = {
+  userName: "Orion3",
+  userEmail: "popocão@barkmail.com",
+  userId: "0000002c-4657-4a3c-b4fc-3b713e2ba894",
+};
+var demoUser8: User = {
+  userName: "Orion4",
+  userEmail: "popocão@barkmail.com",
+  userId: "0000002c-4657-4a3c-b4fc-3b713e2ba894",
+};
+var demoUser9: User = {
+  userName: "Orion5",
+  userEmail: "popocão@barkmail.com",
+  userId: "0000002c-4657-4a3c-b4fc-3b713e2ba894",
+};
+var userFriendList: User[] = [
+  demoUser1,
+  demoUser2,
+  demoUser3,
+  demoUser4,
+  demoUser5,
+  demoUser6,
+  demoUser7,
+  demoUser8,
+  demoUser9,
+];
+
+const groupsHashMap = await groupServices.getGroups(currentUser.userId);
+const categoriesHashMap = await categoryServices.getCategories(
+  currentUser.userId
+);
+const groupsMapEntries = Array.from(groupsHashMap.entries());
+const categoriesMapEntries = Array.from(categoriesHashMap.entries());
+
+const currentGroup = groupServices.getCurrentGroup(
+  Astro.url.searchParams,
+  groupsHashMap
+);
+const currentCategory = categoryServices.getCurrentCategory(
+  Astro.url.searchParams,
+  categoriesHashMap
+);
+
+const filter = filterServices.createFilter(Astro.url.searchParams);
+const expenseHashMap = await expenseServices.getExpenseHashTable(
+  filter,
+  currentUser.userId
+);
+const expenseMapEntries = Array.from(expenseHashMap.entries());
+
+if (Astro.request.method === "POST") {
+  try {
+    const currentQueryString = new URL(Astro.url).search;
+    const formData = await Astro.request.formData();
+    const formId = formData.get("FormId") as string;
+    if (formId == "create-expense-form") {
+      await expenseServices.createSingleExpense(
+        formData,
+        categoriesHashMap,
+        groupsHashMap,
+        currentUser.userId
+      );
+      return Astro.redirect(`/main${currentQueryString}`);
+    } else if (formId === "add-bank-statement-form") {
+      await expenseServices.createBankStatement(
+        formData,
+        categoriesHashMap,
+        groupsHashMap,
+        currentUser.userId
+      );
+      return Astro.redirect(`/main${currentQueryString}`);
+    } else if (formId === "edit-single-expense-form") {
+      await expenseServices.editSingleExpense(
+        formData,
+        categoriesHashMap,
+        groupsHashMap,
+        currentUser.userId
+      );
+      return Astro.redirect(`/main${currentQueryString}`);
+    } else if (formId === "edit-multiple-expenses-form") {
+      await expenseServices.editMultipleExpenses(
+        formData,
+        expenseHashMap,
+        categoriesHashMap,
+        groupsHashMap
+      );
+      return Astro.redirect(`/main${currentQueryString}`);
+    } else if (formId === "delete-expense-form") {
+      await expenseServices.deleteSingleExpense(formData);
+      return Astro.redirect(`/main${currentQueryString}`);
+    } else if (formId === "delete-multiple-expenses-form") {
+      await expenseServices.deleteMultipleExpensesFromCheckBox(formData);
+      return Astro.redirect(`/main${currentQueryString}`);
+      6;
+    } else if (formId === "create-new-group-form") {
+      await groupServices.addNewGroup(formData, currentUser.userId);
+      return Astro.redirect(`/main${currentQueryString}`);
+    } else if (formId === "edit-group-form") {
+      await groupServices.editGroup(formData);
+      return Astro.redirect(`/main${currentQueryString}`);
+    } else if (formId === "delete-group-and-expenses-form") {
+      await expenseServices.deleteExpensesWithGroup(
+        formData,
+        currentUser.userId
+      );
+      await groupServices.deleteGroup(formData);
+      return Astro.redirect("/main");
+    } else if (formId === "delete-group-keep-expenses-form") {
+      await expenseServices.resetExpensesGroup(formData, currentUser.userId);
+      await groupServices.deleteGroup(formData);
+      return Astro.redirect("/main");
+    } else if (formId === "create-new-category-form") {
+      await categoryServices.addNewCategory(formData, currentUser.userId);
+      return Astro.redirect(`/main${currentQueryString}`);
+    } else if (formId === "edit-category-form") {
+      await categoryServices.editCategory(formData);
+      return Astro.redirect(`/main${currentQueryString}`);
+    } else if (formId === "delete-category-form") {
+      await expenseServices.resetExpensesCategory(formData, currentUser.userId);
+      await categoryServices.deleteCategory(formData);
+      return Astro.redirect("/main");
+    } else {
+      return Astro.redirect(`/main${currentQueryString}`);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+---
+
+<UserLayout>
+  <div id="main-slot-page-main">
+    <div class="column" id="groups-column">
+      <h1 class="lightText columnName">Groups</h1>
+      <div class="createColumnElementButtonSpace">
+        <!-- <ModalButton
+          buttonName="New Group"
+          buttonId="new-group"
+          buttonClass="columnBtn"
+          modalId="new-group-modal"
+          modalCloseButtonId="new-group-modal-close"
+          modalWidth="fit-content"
+        >
+          <form
+            method="POST"
+            enctype="multipart/form-data"
+            class="styleFlexColumn"
+          >
+            <input type="hidden" name="FormId" value="create-new-group-form" />
+            <label for="create-new-group-popover-content" class="darkText"
+              >Create Group!</label
+            >
+            <label for="NewGroupName" class="darkText">
+              Create a new Group!
+            </label>
+            <input
+              type="text"
+              name="NewGroupName"
+              id="new-group-name"
+              required
+            />
+            <Button
+              buttonType="submit"
+              buttonName="Submit"
+              buttonId="submit-expense-filter-form"
+              buttonClass="modalBtn"
+            />
+          </form>
+        </ModalButton> -->
+        <Button
+        buttonName="Create New Group"
+        buttonId="create-new-group-open-modal-btn"
+        buttonClass="columnBtn"
+        buttonType="button">
+        </Button>
+        <NewGroupModal>
+        </NewGroupModal>
+      </div>
+      <div class="groupAndCategorySpace">
+        {
+          groupsMapEntries.map(([groupId, group]) => (
+            <div class="completeColumnItemSpace">
+              <div class="columnItemButtonSpace">
+                <form method="GET">
+                  <input type="hidden" name="ExpenseGroupId" value={group.id} />
+                  <input type="hidden" name="GroupName" value={group.name} />
+                  <input
+                    type="hidden"
+                    name="CategoryName"
+                    value={
+                      Astro.url.searchParams.get("CategoryName") === null
+                        ? "All Expenses"
+                        : (Astro.url.searchParams.get("CategoryName") as string)
+                    }
+                  />
+                  <input
+                    type="hidden"
+                    name="ExpenseCategoryId"
+                    value={
+                      Astro.url.searchParams.get("ExpenseCategoryId") === null
+                        ? "all-elements"
+                        : (Astro.url.searchParams.get(
+                            "ExpenseCategoryId"
+                          ) as string)
+                    }
+                  />
+                  <Button
+                    buttonType="submit"
+                    buttonName={group.name}
+                    buttonId={`${group.id}-button`}
+                    buttonClass="columnElementBtn"
+                    active={group.id === currentGroup.id}
+                  />
+                </form>
+              </div>
+              {groupId !== "all-elements" &&
+              groupId !== "00000000-0000-0000-0000-000000000000" ? (
+                <div class="columnItemEditOptionsSpace columnGroupEditOptionsSpace">
+                  <ModalButton
+                    awesomeIconClass="fa-solid fa-gear"
+                    buttonId={`edit-${groupId}-group-button`}
+                    buttonClass="columnElementEditBtn"
+                    modalId={`edit-${groupId}-group-modal`}
+                    modalCloseButtonId={`edit-${groupId}-group-modal-close-button`}
+                    modalWidth="fit-content"
+                  >
+                    <form
+                      method="POST"
+                      enctype="multipart/form-data"
+                      class="styleFormColumn"
+                      name="EditGroupForm"
+                    >
+                      <input
+                        type="hidden"
+                        name="FormId"
+                        value="edit-group-form"
+                      />
+                      <label for="EditGroupForm" class="darkText">
+                        Edit your Group!
+                      </label>
+                      <label for="GroupName" class="darkText">
+                        Group Name
+                      </label>
+                      <input
+                        type="text"
+                        name="GroupName"
+                        id="group-name"
+                        value={group.name}
+                        placeholder={group.name}
+                        required
+                      />
+                      <input type="hidden" name="GroupId" value={groupId} />
+                      <Button
+                        buttonType="submit"
+                        buttonName="Submit"
+                        buttonId="edit-group-submit-button"
+                        buttonClass="modalBtn"
+                      />
+                    </form>
+                  </ModalButton>
+                  <ModalButton
+                    awesomeIconClass="fa-solid fa-trash"
+                    buttonId={`${groupId}-delete-group-options-button`}
+                    buttonClass="columnElementEditBtn"
+                    modalId={`${groupId}-delete-group-options-modal`}
+                    modalCloseButtonId={`${groupId}-delete-group-options-modal-close-button`}
+                    modalWidth="fit-content"
+                  >
+                    <form method="POST" enctype="multipart/form-data">
+                      <input
+                        type="hidden"
+                        name="FormId"
+                        value="delete-group-and-expenses-form"
+                      />
+                      <input type="hidden" name="GroupId" value={groupId} />
+                      <Button
+                        buttonName="Delete Expenses!"
+                        buttonId="delete-group-with-expenses-button"
+                        buttonClass="modalBtn"
+                        buttonType="submit"
+                      />
+                    </form>
+                    <form method="POST" enctype="multipart/form-data">
+                      <input
+                        type="hidden"
+                        name="FormId"
+                        value="delete-group-keep-expenses-form"
+                      />
+                      <input type="hidden" name="GroupId" value={groupId} />
+                      <Button
+                        buttonName="Keep Expenses!"
+                        buttonId="delete-group-keep-expenses-button"
+                        buttonClass="modalBtn"
+                        buttonType="submit"
+                      />
+                    </form>
+                  </ModalButton>
+                </div>
+              ) : null}
+            </div>
+          ))
+        }
+      </div>
+      <div class="editColumnElementsButtonSpace">
+        <Button
+          buttonName="Edit Groups!"
+          buttonId="edit-groups-button"
+          buttonClass="columnBtn"
+          buttonType="button"
+        />
+      </div>
+    </div>
+    <div class="groupLineElement mobileRenderElement" id="mobile-group-line">
+      <div class="groupLineElement" id="group-line-current-group-space">
+        <h1 class="lightText">{currentGroup.name}</h1>
+      </div>
+    </div>
+    <div id="main-space-expenses-card">
+      <div id="main-space-groups-line">
+        <div
+          class="groupLineElement webRenderElement"
+          id="group-line-current-group-space"
+        >
+          <h1 class="lightText">{currentGroup.name}</h1>
+        </div>
+
+        <div class="groupLineElement" id="group-line-add-expense-button-space">
+          <ModalButton
+            buttonName="Add 1 Expense"
+            buttonId="add-expense"
+            buttonClass="expenseHeaderBtn"
+            modalId="add-expense-modal"
+            modalCloseButtonId="add-expense-modal-close"
+            modalWidth="fit-content"
+          >
+            <form
+              method="POST"
+              enctype="multipart/form-data"
+              class="styleFormColumn"
+            >
+              <input type="hidden" name="FormId" value="create-expense-form" />
+              <label for="expense-popover-content" class="prettyLabel darkText"
+                >Create Expense!</label
+              >
+              <label for="ExpenseDescription" class="prettyLabel darkText">
+                Expense Description
+              </label>
+              <input
+                type="text"
+                name="ExpenseDescription"
+                id="expense-description"
+                required
+              />
+              <label for="ExpenseDate" class="prettyLabel darkText">
+                Expense Date
+              </label>
+              <input
+                type="date"
+                name="ExpenseDate"
+                id="expense-date"
+                required
+              />
+              <label for="ExpenseAmount" class="prettyLabel darkText">
+                Expense Amount
+              </label>
+              <input
+                type="text"
+                name="ExpenseAmount"
+                id="expense-amount"
+                required
+              />
+              <label for="ExpenseGroupId" class="prettyLabel darkText">
+                Expense Group</label
+              >
+              <select
+                name="ExpenseGroupId"
+                id="single-expense-group-select"
+                required
+              >
+                {
+                  groupsMapEntries.map(([groupId, group]) =>
+                    groupId === "all-elements" ? null : (
+                      <option value={groupId}>{group.name}</option>
+                    )
+                  )
+                }
+              </select>
+              <label for="ExpenseCategoryId" class="prettyLabel darkText">
+                Expense Category</label
+              >
+              <select
+                name="ExpenseCategoryId"
+                id="single-expense-category-select"
+                required
+              >
+                {
+                  categoriesMapEntries.map(([categoryId, category]) =>
+                    category.id !== "all-elements" ? (
+                      <option value={category.id}>{category.name}</option>
+                    ) : null
+                  )
+                }
+              </select>
+
+              <p id="expense-creation-state" class="prettyLabel darkText">
+                Please fill all the fields!
+              </p>
+              <Button
+                buttonType="submit"
+                buttonName="Submit"
+                buttonId="submit-single-expense"
+                buttonClass="modalBtn"
+              />
+            </form>
+          </ModalButton>
+        </div>
+
+        <div
+          class="groupLineElement"
+          id="group-line-add-bank-statement-button-space"
+        >
+          <ModalButton
+            buttonName="Add Bank Statement"
+            buttonId="add-bank-statement"
+            buttonClass="expenseHeaderBtn"
+            modalId="add-bank-statement-modal"
+            modalCloseButtonId="add-bank-statement-modal-close"
+            modalWidth="fit-content"
+          >
+            <form
+              method="POST"
+              enctype="multipart/form-data"
+              class="styleFormColumn"
+            >
+              <input
+                type="hidden"
+                name="FormId"
+                value="add-bank-statement-form"
+              />
+              <label
+                for="bank-statement-popover-content"
+                class="prettyLabel darkText">Submit Bank Statement!</label
+              >
+              <label for="BankStatementFile" class="prettyLabel darkText"
+                >Select Bank Statement</label
+              >
+              <input
+                type="file"
+                multiple="false"
+                name="BankStatementFile"
+                id="bank-statement-file"
+                accept=".csv,.pdf"
+                required
+              />
+              <label for="BankStatementType" class="prettyLabel darkText">
+                Select Bank Statement type!
+              </label>
+              <select
+                name="BankStatementType"
+                id="bank-statement-select"
+                required
+              >
+                <option value=""> Select a type</option>
+                <hr />
+                <optgroup label="Nubank"> </optgroup>
+                <option value="nubank_csv">Débito</option>
+                <option value="nubank_pdf">Crédito</option>
+              </select>
+              <label for="BankStatementGroup" class="prettyLabel darkText">
+                Select the Group of all expenses in the Bank Statement!
+              </label>
+              <select
+                name="BankStatementGroup"
+                id="bank-statement-category-select"
+                required
+              >
+                {
+                  groupsMapEntries.map(([groupId, group]) =>
+                    group.id !== "all-elements" ? (
+                      <option value={group.id}>{group.name}</option>
+                    ) : null
+                  )
+                }
+              </select>
+              <label for="BankStatementCategory" class="prettyLabel darkText">
+                Select the Category of all expenses in the Bank Statement!
+              </label>
+              <select
+                name="BankStatementCategory"
+                id="bank-statement-category-select"
+                required
+              >
+                {
+                  categoriesMapEntries.map(([categoryId, category]) =>
+                    category.id !== "all-elements" ? (
+                      <option value={category.id}>{category.name}</option>
+                    ) : null
+                  )
+                }
+              </select>
+              <label
+                for="BankStatementMonthOfReference"
+                class="prettyLabel darkText"
+              >
+                Select the month of reference!
+              </label>
+              <select
+                name="BankStatementMonthOfReference"
+                id="bank-statement-month-of-reference-select"
+                required
+              >
+                <option value="1">Jan</option>
+                <option value="2">Feb</option>
+                <option value="3">Mar</option>
+                <option value="4">Apr</option>
+                <option value="5">May</option>
+                <option value="6">Jun</option>
+                <option value="7">Jul</option>
+                <option value="8">Aug</option>
+                <option value="9">Sep</option>
+                <option value="10">Oct</option>
+                <option value="11">Nov</option>
+                <option value="12">Dec</option>
+              </select>
+
+              <p id="file-state" class="darkText">
+                Please select the file and its type!
+              </p>
+              <Button
+                buttonType="submit"
+                buttonName="Submit"
+                buttonId="submit-bank-statement"
+                buttonClass="modalBtn"
+              />
+            </form>
+          </ModalButton>
+        </div>
+
+        <div
+          class="groupLineElement"
+          id="group-line-edit-multiple-expenses-button-space"
+        >
+          <ModalButton
+            buttonName="Edit"
+            buttonId="edit-multiple-expenses-button"
+            buttonClass="expenseHeaderBtn"
+            modalId="edit-multiple-button-modal"
+            modalCloseButtonId="edit-multiple-button-modal-close"
+            modalWidth="fit-content"
+          >
+            <div
+              id="edit-multiple-expenses-categorization-space"
+              class="styleFlexRowGap"
+            >
+              <div class="categorizationSelectSpace">
+                <label for="ToEditExpensesGroupId" class="darkText">
+                  Group
+                </label>
+                <select
+                  name="ToEditExpensesGroupId"
+                  id="expense-group-filter-select"
+                >
+                  <option value=""> No Changes!</option>
+                  <hr />
+                  {
+                    groupsMapEntries.map(([groupId, group]) =>
+                      group.id !== "all-elements" ? (
+                        <option value={group.id}>{group.name}</option>
+                      ) : null
+                    )
+                  }
+                </select>
+              </div>
+              <div class="categorizationSelectSpace">
+                <label for="ToEditExpensesCategoryId" class="darkText">
+                  Category
+                </label>
+                <select
+                  name="ToEditExpensesCategoryId"
+                  id="expense-category-filter-select"
+                >
+                  <option value=""> No Changes!</option>
+                  <hr />
+                  {
+                    categoriesMapEntries.map(([categoryId, category]) =>
+                      category.id !== "all-elements" ? (
+                        <option value={category.id}>{category.name}</option>
+                      ) : null
+                    )
+                  }
+                </select>
+              </div>
+            </div>
+            <div id="edit-multiple-expenses-submit-button-space">
+              <Button
+                buttonName="Submit"
+                buttonId="submit-edit-multiple-expenses"
+                buttonClass="modalBtn"
+                buttonType="submit"
+              />
+            </div>
+          </ModalButton>
+        </div>
+
+        <div
+          class="groupLineElement"
+          id="group-line-delete-multiple-expenses-button-space"
+        >
+          <Button
+            buttonName="Delete"
+            buttonId="delete-multiple-expenses"
+            buttonClass="expenseHeaderBtn"
+            buttonType="button"
+          />
+        </div>
+
+        <div
+          class="groupLineElement styleFlexRow"
+          id="group-line-filter-edit-buttons-space"
+        >
+          <ModalButton
+            awesomeIconClass="fa-solid fa-filter"
+            buttonId="expense-filters"
+            buttonClass="expenseHeaderEditBtn"
+            modalId="expense-filters-modal"
+            modalCloseButtonId="expense-filters-modal-close"
+            modalWidth="fit-content"
+          >
+            <form
+              method="GET"
+              id="expense-filter-form"
+              class="styleFormColumn"
+              name="ExpenseFilterForm"
+            >
+              <label for="ExpenseFilterForm" class="darkText"
+                >Choose Filters!</label
+              >
+              <label for="ExpenseDescriptionCriteria" class="darkText">
+                Expense Description
+              </label>
+              <input
+                type="text"
+                name="ExpenseDescriptionCriteria"
+                id="expense-description-criteria"
+              />
+              <label for="ExpenseStartingDate" class="darkText">
+                Query Starting Date
+              </label>
+              <input
+                type="date"
+                name="ExpenseStartingDate"
+                id="expense-starting-date-criteria"
+              />
+              <label for="ExpenseEndingDate" class="darkText">
+                Query Ending Date
+              </label>
+              <input
+                type="date"
+                name="ExpenseEndingDate"
+                id="expense-ending-date-criteria"
+              />
+              <label for="ExpenseCategoryId" class="darkText"> Category </label>
+              <select
+                name="ExpenseCategoryId"
+                id="expense-category-filter-select"
+              >
+                <hr />
+                <option value="all-elements"> No Specific Category</option>
+                <hr />
+                {
+                  categoriesMapEntries.map(([categoryId, category]) =>
+                    category.id !== "all-elements" ? (
+                      <option value={category.id}>{category.name}</option>
+                    ) : null
+                  )
+                }
+              </select>
+              <label for="ExpenseGroupId" class="darkText"> Group </label>
+              <select name="ExpenseGroupId" id="expense-group-filter-select">
+                <hr />
+                <option value="all-elements"> No Specific Group</option>
+                <hr />
+                {
+                  groupsMapEntries.map(([groupId, group]) =>
+                    group.id !== "all-elements" ? (
+                      <option value={group.id}>{group.name}</option>
+                    ) : null
+                  )
+                }
+              </select>
+              <div id="filters-submit-reset-button-space">
+                <Button
+                  buttonType="submit"
+                  buttonName="Submit"
+                  buttonId="submit-expense-filter-form"
+                  buttonClass="modalBtn"
+                />
+                <Button
+                  buttonType="submit"
+                  buttonName="Reset"
+                  buttonId="reset-filters-button"
+                  buttonClass="modalBtn"
+                />
+              </div>
+            </form>
+          </ModalButton>
+          <Button
+            awesomeIconClass="fa-solid fa-screwdriver-wrench"
+            buttonId="render-edit-multiple-expenses-interface-button"
+            buttonType="button"
+            buttonClass="expenseHeaderEditBtn"
+          />
+        </div>
+      </div>
+      <div id="expense-board">
+        <div id="expense-board-expenses-space">
+          {
+            expenseMapEntries.map(([expenseId, expense]) => (
+              <div class="expenseLineSpace">
+                <ExpenseLine
+                  expenseDate={expenseMapper.getDateToRender(expense.date)}
+                  groupName={expense.group.name}
+                  expenseDescription={expense.description}
+                  expenseCategory={expense.category.name}
+                  expenseAmount={expenseMapper.getCurrencyAmount(
+                    expense.amount
+                  )}
+                  currentGroupName={currentGroup.name}
+                  expenseId={expenseId}
+                >
+                  <input
+                    type="hidden"
+                    name="ExpenseIdCheckbox"
+                    value={expenseId}
+                    slot="headerSlot"
+                    class="multipleExpensesEditCheckboxes"
+                  />
+                  <div
+                    id="edit-delete-single-expense-space"
+                    class="styleFormRow"
+                    slot="containerSlot"
+                  >
+                    <ModalButton
+                      awesomeIconClass="fa-solid fa-gear"
+                      buttonId={`${expense.id}-edit-button`}
+                      buttonClass="expenseLineEditBtn"
+                      modalId={`${expense.id}-edit-button-modal`}
+                      modalCloseButtonId={`${expense.id}-edit-button-modal-close`}
+                      modalWidth="fit-content"
+                    >
+                      <form
+                        method="POST"
+                        enctype="multipart/form-data"
+                        class="styleFormColumn"
+                      >
+                        <input
+                          type="hidden"
+                          name="FormId"
+                          value="edit-single-expense-form"
+                        />
+                        <label
+                          for="expense-popover-content"
+                          class="prettyLabel darkText"
+                        >
+                          Edit your Expense!
+                        </label>
+                        <label
+                          for="ExpenseDescription"
+                          class="prettyLabel darkText"
+                        >
+                          Expense Description
+                        </label>
+                        <input
+                          type="text"
+                          name="ExpenseDescription"
+                          id="expense-description"
+                          value={expense.description}
+                          placeholder={expense.description}
+                          required
+                        />
+                        <label for="ExpenseDate" class="prettyLabel darkText">
+                          Expense Date
+                        </label>
+                        <input
+                          type="date"
+                          name="ExpenseDate"
+                          id="expense-date"
+                          value={expenseMapper.getValidDateForEditing(
+                            expense.date
+                          )}
+                          required
+                        />
+                        <label for="ExpenseAmount" class="prettyLabel darkText">
+                          Expense Amount
+                        </label>
+                        <input
+                          type="text"
+                          name="ExpenseAmount"
+                          id="expense-amount"
+                          value={expense.amount}
+                          placeholder={expenseMapper.getCurrencyAmount(
+                            expense.amount
+                          )}
+                          required
+                        />
+                        <label
+                          for="ExpenseGroupId"
+                          class="prettyLabel darkText"
+                        >
+                          Expense Group
+                        </label>
+                        <select
+                          name="ExpenseGroupId"
+                          id="single-expense-group-select"
+                          required
+                        >
+                          {groupsMapEntries.map(([groupId, group]) =>
+                            group.id !== "all-elements" ? (
+                              <option value={group.id}>{group.name}</option>
+                            ) : null
+                          )}
+                        </select>
+                        <label
+                          for="ExpenseCategoryId"
+                          class="prettyLabel darkText"
+                        >
+                          Expense Category
+                        </label>
+                        <select
+                          name="ExpenseCategoryId"
+                          id="single-expense-category-select"
+                          required
+                        >
+                          {categoriesMapEntries.map(([categoryId, category]) =>
+                            category.id !== "all-elements" ? (
+                              <option value={category.id}>
+                                {category.name}
+                              </option>
+                            ) : null
+                          )}
+                        </select>
+
+                        <p id="expense-editing-state" class="darkText">
+                          Please fill all the fields!
+                        </p>
+
+                        <input
+                          type="hidden"
+                          name="ExpenseId"
+                          value={expense.id}
+                        />
+
+                        <input
+                          type="hidden"
+                          name="OwnerId"
+                          value={expense.ownerId}
+                        />
+
+                        <Button
+                          buttonType="submit"
+                          buttonName="Submit"
+                          buttonId="edit-single-expense"
+                          buttonClass="modalBtn"
+                        />
+                      </form>
+                    </ModalButton>
+                    <form method="POST" enctype="multipart/form-data">
+                      <input
+                        type="hidden"
+                        name="FormId"
+                        value="delete-expense-form"
+                      />
+                      <input
+                        type="hidden"
+                        name="ExpenseId"
+                        value={expense.id}
+                      />
+                      <Button
+                        awesomeIconClass="fa-solid fa-trash"
+                        buttonId="delete-single-expense"
+                        buttonClass="expenseLineEditBtn"
+                        buttonType="submit"
+                      />
+                    </form>
+                    <ModalButton
+                      awesomeIconClass="fa-solid fa-handshake"
+                      buttonId={`${expense.id}-share-button`}
+                      buttonClass="expenseLineEditBtn"
+                      modalId={`${expense.id}-share-button-modal`}
+                      modalCloseButtonId={`${expense.id}-share-button-modal-close`}
+                      modalWidth="fit-content"
+                    >
+                      <form
+                        method="POST"
+                        enctype="multipart/form-data"
+                        class="styleFormColumn"
+                      >
+                        <input
+                          type="hidden"
+                          name="FormId"
+                          value="share-expense-form"
+                        />
+                        <input
+                          type="hidden"
+                          required
+                          name="ExpenseId"
+                          value={expense.id}
+                        />
+                        <div class="shareExpenseStepOne">
+                          <label
+                            for="friend-list-div"
+                            class="prettyLabel darkText"
+                            id="step-one-label"
+                          >
+                            Select at least one user to share the expense!
+                          </label>
+                        </div>
+                        <div id="friend-list-div">
+                          {userFriendList.map((user) => (
+                            <div class="userShareCheckBox shareExpenseStepOne">
+                              <p class="darkText">{user.userName}</p>
+                              <input
+                                type="checkbox"
+                                class="shareUsersIds prettyCheckBox"
+                                name={user.userName}
+                                value={user.userId}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                        <div class="navigationButton shareExpenseStepOne">
+                          <Button
+                            buttonName="Next"
+                            buttonClass="modalBtn"
+                            buttonType="button"
+                            buttonId="next-step-share-expense"
+                          />
+                        </div>
+                        <div class="navigationButton shareExpenseStepTwo">
+                          <Button
+                            buttonName="Back"
+                            buttonClass="modalBtn"
+                            buttonType="button"
+                            buttonId="previous-step-share-expense"
+                          />
+                        </div>
+                        <div class="navigationButton shareExpenseStepTwo">
+                          <Button
+                            buttonName="Submit"
+                            buttonClass="modalBtn"
+                            buttonType="button"
+                            buttonId="submit-share-expense"
+                          />
+                        </div>
+                      </form>
+                    </ModalButton>
+                    {expense.isShared === true ? (
+                      <ModalButton
+                        awesomeIconClass="fa-solid fa-handshake"
+                        buttonId={`${expense.id}-share-button`}
+                        buttonClass="expenseLineEditBtn"
+                        modalId={`${expense.id}-share-button-modal`}
+                        modalCloseButtonId={`${expense.id}-share-button-modal-close`}
+                        modalWidth="fit-content"
+                      />
+                    ) : null}
+                  </div>
+                </ExpenseLine>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+    <div class="column" id="categories-column">
+      <h1 class="lightText columnName">Categories</h1>
+      <div class="createColumnElementButtonSpace">
+        <ModalButton
+          buttonName="New Category"
+          buttonId="new-category"
+          buttonClass="columnBtn"
+          modalId="new-category-modal"
+          modalCloseButtonId="new-category-modal-close"
+          modalWidth="fit-content"
+        >
+          <form
+            method="POST"
+            enctype="multipart/form-data"
+            class="styleFormColumn"
+          >
+            <input
+              type="hidden"
+              name="FormId"
+              value="create-new-category-form"
+            />
+            <label for="create-new-category-popover-content" class="darkText"
+              >Create Group!</label
+            >
+            <label for="NewCategoryName" class="darkText">
+              Create a new Category!
+            </label>
+            <input
+              type="text"
+              name="NewCategoryName"
+              id="new-category-name"
+              required
+            />
+            <Button
+              buttonType="submit"
+              buttonName="Submit"
+              buttonId="submit-new-category-form"
+              buttonClass="modalBtn"
+            />
+          </form>
+        </ModalButton>
+      </div>
+      <div class="groupAndCategorySpace">
+        {
+          categoriesMapEntries.map(([categoryId, category]) => (
+            <div class="completeColumnItemSpace">
+              <div class="columnItemButtonSpace">
+                <form method="GET">
+                  <input
+                    type="hidden"
+                    name="ExpenseCategoryId"
+                    value={category.id}
+                  />
+                  <input
+                    type="hidden"
+                    name="CategoryName"
+                    value={category.name}
+                  />
+                  <input
+                    type="hidden"
+                    name="GroupName"
+                    value={
+                      Astro.url.searchParams.get("GroupName") === null
+                        ? "All Expenses"
+                        : (Astro.url.searchParams.get("GroupName") as string)
+                    }
+                  />
+                  <input
+                    type="hidden"
+                    name="ExpenseGroupId"
+                    value={
+                      Astro.url.searchParams.get("ExpenseGroupId") === null
+                        ? "all-elements"
+                        : (Astro.url.searchParams.get(
+                            "ExpenseGroupId"
+                          ) as string)
+                    }
+                  />
+                  <Button
+                    buttonType="submit"
+                    buttonName={category.name}
+                    buttonId={`${category.id}-button`}
+                    buttonClass="columnElementBtn"
+                    active={category.id === currentCategory.id}
+                  />
+                </form>
+              </div>
+              {categoryId !== "all-elements" &&
+              categoryId !== "00000000-0000-0000-0000-000000000000" ? (
+                <div class="columnItemEditOptionsSpace columnCategoryEditOptionsSpace">
+                  <ModalButton
+                    awesomeIconClass="fa-solid fa-gear"
+                    buttonId={`edit-${categoryId}-category-button`}
+                    buttonClass="columnElementEditBtn"
+                    modalId={`edit-${categoryId}-category-modal`}
+                    modalCloseButtonId={`edit-${categoryId}-category-modal-close-button`}
+                    modalWidth="fit-content"
+                  >
+                    <form
+                      method="POST"
+                      enctype="multipart/form-data"
+                      class="styleFormColumn"
+                      name="EditCategoryForm"
+                    >
+                      <input
+                        type="hidden"
+                        name="FormId"
+                        value="edit-category-form"
+                      />
+                      <label for="EditCategoryForm" class="darkText">
+                        Edit your Category!
+                      </label>
+                      <label for="CategoryName" class="darkText">
+                        Category Name
+                      </label>
+                      <input
+                        type="text"
+                        name="CategoryName"
+                        id="category-name"
+                        value={category.name}
+                        placeholder={category.name}
+                        required
+                      />
+                      <input
+                        type="hidden"
+                        name="CategoryId"
+                        value={categoryId}
+                      />
+                      <Button
+                        buttonType="submit"
+                        buttonName="Submit"
+                        buttonId="edit-category-submit-button"
+                        buttonClass="modalBtn"
+                      />
+                    </form>
+                  </ModalButton>
+                  <form method="POST" enctype="multipart/form-data">
+                    <input
+                      type="hidden"
+                      name="FormId"
+                      value="delete-category-form"
+                    />
+                    <input type="hidden" name="CategoryId" value={categoryId} />
+                    <Button
+                      awesomeIconClass="fa-solid fa-trash"
+                      buttonId="delete-category"
+                      buttonClass="columnElementEditBtn"
+                      buttonType="submit"
+                    />
+                  </form>
+                </div>
+              ) : null}
+            </div>
+          ))
+        }
+      </div>
+      <div class="editColumnElementsButtonSpace">
+        <Button
+          buttonName="Edit Categories!"
+          buttonId="edit-categories-button"
+          buttonClass="columnBtn"
+          buttonType="button"
+        />
+      </div>
+    </div>
+    <div class="mobileActionBar mobileRenderElement">
+      <div class="mobileActionBarBtnSpace">
+        <Button
+          buttonName="Groups"
+          buttonId="mobile-groups-button"
+          buttonClass="mobileActionBarBtn"
+          buttonType="button"
+        />
+      </div>
+      <div class="mobileActionBarBtnSpace">
+        <Button
+          buttonName="Expenses"
+          buttonId="mobile-expense-options-button"
+          buttonClass="mobileActionBarBtn"
+          buttonType="button"
+        />
+      </div>
+      <div class="mobileActionBarBtnSpace">
+        <Button
+          buttonName="Categories"
+          buttonId="mobile-categories-button"
+          buttonClass="mobileActionBarBtn"
+          buttonType="button"
+        />
+      </div>
+    </div>
+  </div>
+</UserLayout>
+
+<!-- MAIN SLOTS CSS -->
+<style>
+  #main-slot-page-main {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  #main-space-expenses-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    height: 100%;
+    width: 70%;
+    order: 2;
+  }
+
+  .mobileRenderElement {
+    display: none;
+  }
+
+  .prettyLabel {
+    font-size: 2rem;
+  }
+
+  @media screen and (max-width: 1020px) {
+    #main-slot-page-main {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #main-space-expenses-card {
+      width: 100%;
+      height: 80%;
+    }
+
+    .mobileRenderElement {
+      display: flex;
+    }
+  }
+
+  @media (min-width: 769px) and (max-width: 1600px) {
+    html {
+      font-size: 16px;
+    }
+  }
+
+  @media (min-width: 456px) and (max-width: 768px) {
+    html {
+      font-size: 14px;
+    }
+  }
+
+  @media screen and (max-width: 455px) {
+    html {
+      font-size: 12px;
+    }
+  }
+</style>
+
+<!-- GROUP LINE MAIN ELEMENT CSS -->
+<style>
+  #main-space-groups-line {
+    background-color: #dabe99;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 95%;
+    border-radius: 10px;
+    height: 10%;
+    border: 1px solid black;
+    padding-left: 5%;
+    order: 1;
+  }
+
+  .groupLineElement {
+    justify-content: center;
+    align-items: center;
+    width: 25%;
+  }
+
+  @media screen and (max-width: 1020px) {
+    .webRenderElement {
+      display: none;
+    }
+
+    #main-space-groups-line {
+      display: none;
+      background-color: #d4a872;
+      padding-left: 0%;
+      width: 100%;
+    }
+
+    .groupLineElement {
+      width: 100%;
+      text-align: center;
+    }
+  }
+
+  @media screen and (min-width: 1021px) {
+    #main-space-groups-line {
+      display: flex;
+    }
+
+    .groupLineElement {
+      width: 25%;
+    }
+  }
+</style>
+
+<!-- FILTERS CSS -->
+<style>
+  #filters-submit-reset-button-space {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
+</style>
+
+<!-- EDIT MULTIPLE EXPENSES CSS -->
+<style>
+  #edit-multiple-expenses-options-space {
+    display: none;
+    align-items: center;
+    justify-content: space-around;
+    width: 200%;
+    height: 20%;
+  }
+
+  #group-line-add-expense-button-space {
+    display: flex;
+  }
+
+  #group-line-add-bank-statement-button-space {
+    display: flex;
+  }
+
+  #group-line-edit-multiple-expenses-button-space {
+    display: none;
+  }
+
+  #group-line-delete-multiple-expenses-button-space {
+    display: none;
+  }
+
+  input[type="checkbox"] {
+    transform: scale(1.5);
+  }
+
+  @media screen and (max-width: 1020px) {
+    .webRenderElement {
+      display: none;
+    }
+  }
+</style>
+
+<!-- EXPENSES SPACE CSS -->
+<style>
+  #expense-board {
+    width: 100%;
+    height: 89.5%;
+    order: 2;
+  }
+
+  #expense-board-expenses-space {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+  }
+
+  @media screen and (max-width: 1020px) {
+    #expense-board {
+      height: 100%;
+    }
+  }
+</style>
+
+<!-- EXPENSE SHARING CSS -->
+<style>
+  #friend-list-div {
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+    gap: 1rem;
+    height: 40vh;
+    overflow: hidden;
+    overflow-y: auto;
+    margin-top: 5%;
+    margin-bottom: 5%;
+  }
+
+  .userShareCheckBox {
+    width: 40%;
+    display: flex;
+    justify-content: space-evenly;
+    background-color: beige;
+    border-radius: 10px;
+  }
+
+  .navigationButton {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .prettyCheckBox {
+    margin: 0;
+  }
+
+  .shareExpenseStepOne {
+    display: flex;
+  }
+
+  .shareExpenseStepTwo {
+    display: none;
+  }
+</style>
+
+<!-- EXPENSE EDITING CSS -->
+<style></style>
+<!-- COLUMN CSS -->
+<style>
+  .column {
+    display: flex;
+    background-color: #dabe99;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    box-sizing: border-box;
+    width: 15%;
+    height: 100%;
+    border-radius: 10px;
+    border: 1px solid black;
+    padding-bottom: 1%;
+  }
+
+  .columnHeader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    height: 25%;
+    width: 100%;
+  }
+
+  .columnName {
+    order: 1;
+  }
+
+  .createColumnElementButtonSpace {
+    order: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 15%;
+    width: 100%;
+  }
+
+  .groupAndCategorySpace {
+    order: 3;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    overflow: hidden;
+    overflow-y: auto;
+    gap: 1.5em;
+    height: 60%;
+    width: 100%;
+  }
+
+  .completeColumnItemSpace {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .columnItemButtonSpace {
+    width: 60%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .columnItemButtonSpace form {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .columnItemEditOptionsSpace {
+    width: 30%;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .columnGroupEditOptionsSpace {
+    display: none;
+  }
+
+  .columnCategoryEditOptionsSpace {
+    display: none;
+  }
+
+  .editColumnElementsButtonSpace {
+    order: 4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 15%;
+    width: 100%;
+  }
+
+  #groups-column {
+    order: 1;
+  }
+
+  #categories-column {
+    order: 3;
+  }
+
+  @media screen and (max-width: 1020px) {
+    .column {
+      height: 40%;
+      width: 100%;
+      background-color: #d4a872;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: space-evenly;
+    }
+
+    .columnName {
+      flex-shrink: 0;
+      margin: 0;
+    }
+
+    .groupAndCategorySpace {
+      flex-shrink: 0;
+      order: 2;
+      justify-content: space-evenly;
+      gap: 1em;
+      height: 30%;
+      width: 100%;
+      margin: 2% 0%;
+    }
+
+    .completeColumnItemSpace {
+      width: 45%;
+      gap: 0.5em;
+    }
+
+    .columnItemButtonSpace {
+      width: 60%;
+    }
+
+    .createColumnElementButtonSpace {
+      order: 3;
+      width: 45%;
+    }
+
+    .editColumnElementsButtonSpace {
+      width: 45%;
+    }
+
+    #groups-column {
+      display: none;
+    }
+
+    #categories-column {
+      display: none;
+    }
+  }
+</style>
+
+<!-- GENERAL CSS -->
+<style>
+  .categorizationSelectSpace {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .styleFormColumn {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+  }
+
+  .styleFormRow {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  .styleFlexRow {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 100%;
+    height: fit-content;
+  }
+
+  .styleFlexRowGap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: fit-content;
+  }
+
+  .styleFlexColumn {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 100%;
+    height: fit-content;
+  }
+</style>
+
+<!-- MOBILE EXCLUSIVE CSS -->
+<style>
+  .mobileActionBar {
+    display: none;
+    justify-content: space-around;
+    align-items: center;
+    height: 20%;
+    width: 100%;
+    background-color: #dabe99;
+    border-radius: 10px;
+    border: 1px solid black;
+    order: 4;
+  }
+
+  .mobileActionBarBtnSpace {
+    height: 60%;
+    width: 23%;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #mobile-group-line {
+    background-color: #dabe99;
+    display: none;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    border-radius: 10px;
+    height: 10%;
+    border: 1px solid black;
+  }
+
+  @media screen and (max-width: 1020px) {
+    #mobile-group-line {
+      display: flex;
+    }
+  }
+</style>
+
+<!-- FILTER RESET SCRIPT -->
+<script>
+  let filterResetButton = document.getElementById("reset-filters-button");
+  let expenseFilterForm = document.getElementById(
+    "expense-filter-form"
+  ) as HTMLFormElement;
+  filterResetButton?.addEventListener("click", (event) => {
+    for (let i = 1; i < expenseFilterForm!.children.length; i++) {
+      let element = expenseFilterForm?.children[i] as HTMLFormElement;
+      if (element.type === "text" || element.type === "date")
+        element.value = "";
+      else {
+        element.value = "all-elements";
+      }
+    }
+  });
+</script>
+
+<!-- BANKSTATEMENT SUBMISSION VALIDATION SCRIPT -->
+<script>
+  let bankStatementSubmitButton = document.getElementById(
+    "submit-bank-statement"
+  );
+  let bankStatementFileInput = document.getElementById(
+    "bank-statement-file"
+  ) as HTMLInputElement;
+  let bankStatementSubmitMessage = document.getElementById("file-state");
+  let bankStatementType = document.getElementById(
+    "bank-statement-select"
+  ) as HTMLInputElement;
+
+  bankStatementSubmitButton?.addEventListener("click", function (event) {
+    const fileList = bankStatementFileInput.files;
+
+    if (fileList?.length === 0 && bankStatementType.value == "") {
+      bankStatementSubmitMessage!.textContent =
+        "Please, select a file and its type to continue!";
+      event.preventDefault();
+    } else if (bankStatementType.value == "") {
+      bankStatementSubmitMessage!.textContent =
+        "Please, select the file type to continue!";
+      event.preventDefault();
+    } else if (fileList!.length === 0) {
+      bankStatementSubmitMessage!.textContent =
+        "Please, select a file to continue!";
+      event.preventDefault();
+    }
+  });
+</script>
+
+<!-- SINGLE EXPENSE SUBMISSION VALIDATION SCRIPT -->
+<script>
+  let singleExpensePopoverValidationText = document.getElementById(
+    "expense-creation-state"
+  );
+  let singleExpenseSubmitButton = document.getElementById(
+    "submit-single-expense"
+  );
+  let singleExpenseInputDescription = document.getElementById(
+    "expense-description"
+  ) as HTMLInputElement;
+  let singleExpenseInputDate = document.getElementById(
+    "expense-date"
+  ) as HTMLInputElement;
+  let singleExpenseInputAmount = document.getElementById(
+    "expense-amount"
+  ) as HTMLInputElement;
+  let singleExpenseInputCategory = document.getElementById(
+    "expense-category"
+  ) as HTMLInputElement;
+
+  singleExpenseSubmitButton!.addEventListener("click", (event) => {
+    if (
+      singleExpenseInputDescription.value == "" ||
+      singleExpenseInputDate.value == "" ||
+      singleExpenseInputAmount.value == "" ||
+      singleExpenseInputCategory.value == ""
+    ) {
+      singleExpensePopoverValidationText!.textContent =
+        "You need to fill all the fields for submission!";
+      event.preventDefault();
+    }
+  });
+</script>
+
+<!-- CLIENT SIDE RENDERING STUFF -->
+
+<!-- EDIT MULTIPLE EXPENSES SCRIPT -->
+<script>
+  function toggleDisplayFlexToNone(element: HTMLElement) {
+    if (element.style.display === "flex" || element.style.display === "") {
+      element.style.display = "none";
+    } else {
+      element.style.display = "flex";
+    }
+  }
+
+  function toggleDisplayNoneToFlex(element: HTMLElement) {
+    if (element.style.display === "none" || element.style.display === "") {
+      element.style.display = "flex";
+    } else {
+      element.style.display = "none";
+    }
+  }
+
+  const addSingleExpenseButtonSpace = document.getElementById(
+    "group-line-add-expense-button-space"
+  )!;
+  const addBankStatementButtonSpace = document.getElementById(
+    "group-line-add-bank-statement-button-space"
+  )!;
+  const editMultipleExpensesButtonSpace = document.getElementById(
+    "group-line-edit-multiple-expenses-button-space"
+  )!;
+  const deleteMultipleExpensesButtonSpace = document.getElementById(
+    "group-line-delete-multiple-expenses-button-space"
+  )!;
+  const renderMultipleExpensesEditingButton = document.getElementById(
+    "render-edit-multiple-expenses-interface-button"
+  )!;
+
+  const editMultipleExpensesSubmitButton = document.getElementById(
+    "submit-edit-multiple-expenses"
+  )!;
+  const deleteMultipleExpensesSubmitButton = document.getElementById(
+    "delete-multiple-expenses"
+  )!;
+  const toEditMultipleExpensesCategoryId = document.getElementById(
+    "expense-category-filter-select"
+  )! as HTMLInputElement;
+  const toEditMultipleExpensesGroupId = document.getElementById(
+    "expense-group-filter-select"
+  )! as HTMLInputElement;
+
+  const multipleExpensesCheckboxes = document.querySelectorAll(
+    ".multipleExpensesEditCheckboxes"
+  )! as NodeListOf<HTMLInputElement>;
+
+  renderMultipleExpensesEditingButton.addEventListener("click", () => {
+    multipleExpensesCheckboxes.forEach((checkbox) => {
+      if (checkbox.type === "checkbox") {
+        checkbox.type = "hidden";
+      } else {
+        checkbox.type = "checkbox";
+      }
+    });
+    toggleDisplayFlexToNone(addSingleExpenseButtonSpace);
+    toggleDisplayFlexToNone(addBankStatementButtonSpace);
+    toggleDisplayNoneToFlex(editMultipleExpensesButtonSpace);
+    toggleDisplayNoneToFlex(deleteMultipleExpensesButtonSpace);
+  });
+
+  editMultipleExpensesSubmitButton.addEventListener("click", (event) => {
+    debugger;
+    event.preventDefault();
+    const formData = new FormData();
+    multipleExpensesCheckboxes.forEach((checkbox) => {
+      if (checkbox.checked) {
+        formData.append("SelectedExpenseId", checkbox.value);
+      }
+    });
+    formData.append(
+      "ToEditExpensesCategoryId",
+      toEditMultipleExpensesCategoryId.value
+    );
+    formData.append(
+      "ToEditExpensesGroupId",
+      toEditMultipleExpensesGroupId.value
+    );
+    formData.append("FormId", "edit-multiple-expenses-form");
+
+    fetch("http://localhost:4321/main", {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(
+            "Network response not ok, no connection with astro server "
+          );
+        }
+        const queryString = window.location.search;
+        window.location.replace(`/main${queryString}`);
+      })
+
+      .catch((error) => {
+        console.log(`${error} during fetch`);
+      });
+  });
+
+  deleteMultipleExpensesSubmitButton.addEventListener("click", (event) => {
+    event.preventDefault();
+    const formData = new FormData();
+    multipleExpensesCheckboxes.forEach((checkbox) => {
+      if (checkbox.checked) {
+        formData.append("SelectedExpenseId", checkbox.value);
+      }
+    });
+    formData.append("FormId", "delete-multiple-expenses-form");
+    fetch("http://localhost:4321/main", {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(
+            "Network response not ok, no connection with astro server "
+          );
+        }
+        const queryString = window.location.search;
+        window.location.replace(`/main${queryString}`);
+      })
+
+      .catch((error) => {
+        console.log(`${error} during fetch`);
+      });
+  });
+</script>
+
+<!-- COLUMN ITEM EDITING CLIENT SIDE RENDERING SCRIPT -->
+<script>
+  function toggleDisplayFlexToNone(element: HTMLElement) {
+    if (element.style.display === "flex" || element.style.display === "") {
+      element.style.display = "none";
+    } else {
+      element.style.display = "flex";
+    }
+  }
+
+  function toggleDisplayNoneToFlex(element: HTMLElement) {
+    if (element.style.display === "none" || element.style.display === "") {
+      element.style.display = "flex";
+    } else {
+      element.style.display = "none";
+    }
+  }
+
+  const editGroupsButton = document.getElementById("edit-groups-button")!;
+  const editCategoriesButton = document.getElementById(
+    "edit-categories-button"
+  )!;
+
+  const groupElementEditOptionSpace = document.querySelectorAll(
+    ".columnGroupEditOptionsSpace"
+  ) as NodeListOf<HTMLElement>;
+  const categoryElementEditOptionSpace = document.querySelectorAll(
+    ".columnCategoryEditOptionsSpace"
+  ) as NodeListOf<HTMLElement>;
+
+  editGroupsButton.addEventListener("click", () => {
+    groupElementEditOptionSpace.forEach((editOptionsDiv) => {
+      toggleDisplayNoneToFlex(editOptionsDiv);
+    });
+  });
+
+  editCategoriesButton.addEventListener("click", () => {
+    categoryElementEditOptionSpace.forEach((editOptionsDiv) => {
+      toggleDisplayNoneToFlex(editOptionsDiv);
+    });
+  });
+</script>
+
+<!-- GROUPS, CATEGORIES AND EXPENSES OPTIONS MOBILE RENDERING SCRIPT -->
+<script>
+  function toggleMobileRenderGroupsDiv(
+    groupsDiv: HTMLElement,
+    categoriesDiv: HTMLElement,
+    mobileMainExpenseOptionDiv: HTMLElement,
+    mainExpenseSpaceDiv: HTMLElement
+  ) {
+    if (groupsDiv.style.display === "none" || groupsDiv.style.display === "") {
+      if (categoriesDiv.style.display === "flex") {
+        categoriesDiv.style.display = "none";
+      }
+      if (mobileMainExpenseOptionDiv.style.display === "flex") {
+        mobileMainExpenseOptionDiv.style.display = "none";
+        expenseBoardDiv.style.order = "2";
+        mobileMainExpenseOptionDiv.style.order = "1";
+        expenseBoardDiv.style.height = "100%";
+      }
+      groupsDiv.style.display = "flex";
+      groupsDiv.style.order = "3";
+      categoriesDiv.style.order = "1";
+      mainExpenseSpaceDiv.style.height = "40%";
+    } else {
+      groupsDiv.style.display = "none";
+      groupsDiv.style.order = "1";
+      categoriesDiv.style.order = "3";
+      mainExpenseSpaceDiv.style.height = "80%";
+    }
+  }
+
+  function toggleMobileRenderCategoryDiv(
+    categoriesDiv: HTMLElement,
+    groupsDiv: HTMLElement,
+    mobileMainExpenseOptionDiv: HTMLElement,
+    mainExpenseSpaceDiv: HTMLElement
+  ) {
+    if (
+      categoriesDiv.style.display === "none" ||
+      categoriesDiv.style.display === ""
+    ) {
+      if (groupsDiv.style.display === "flex") {
+        groupsDiv.style.display = "none";
+        groupsDiv.style.order = "1";
+        categoriesDiv.style.order = "3";
+      }
+      if (mobileMainExpenseOptionDiv.style.display === "flex") {
+        mobileMainExpenseOptionDiv.style.display = "none";
+        expenseBoardDiv.style.order = "2";
+        mobileMainExpenseOptionDiv.style.order = "1";
+        expenseBoardDiv.style.height = "100%";
+      }
+      categoriesDiv.style.display = "flex";
+      mainExpenseSpaceDiv.style.height = "40%";
+    } else {
+      categoriesDiv.style.display = "none";
+      mainExpenseSpaceDiv.style.height = "80%";
+    }
+  }
+
+  function toggleMobileRenderExpenseOptionsDiv(
+    mobileMainExpenseOptionDiv: HTMLElement,
+    groupsDiv: HTMLElement,
+    categoriesDiv: HTMLElement,
+    expenseBoardDiv: HTMLElement,
+    mainExpenseSpaceDiv: HTMLElement
+  ) {
+    if (
+      mobileMainExpenseOptionDiv.style.display === "none" ||
+      mobileMainExpenseOptionDiv.style.display === ""
+    ) {
+      if (groupsDiv.style.display === "flex") {
+        groupsDiv.style.display = "none";
+        groupsDiv.style.order = "1";
+        categoriesDiv.style.order = "3";
+        mainExpenseSpaceDiv.style.height = "80%";
+      }
+      if (categoriesDiv.style.display === "flex") {
+        categoriesDiv.style.display = "none";
+        mainExpenseSpaceDiv.style.height = "80%";
+      }
+      expenseBoardDiv.style.order = "1";
+      mobileMainExpenseOptionDiv.style.order = "2";
+      expenseBoardDiv.style.height = "80%";
+      mobileMainExpenseOptionDiv.style.height = "20%";
+      mobileMainExpenseOptionDiv.style.display = "flex";
+    } else {
+      expenseBoardDiv.style.order = "2";
+      mobileMainExpenseOptionDiv.style.order = "1";
+      expenseBoardDiv.style.height = "100%";
+      mobileMainExpenseOptionDiv.style.height = "10%";
+      mobileMainExpenseOptionDiv.style.display = "none";
+    }
+  }
+
+  const mobGroupsButton = document.getElementById("mobile-groups-button")!;
+  const mobCategoriesButton = document.getElementById(
+    "mobile-categories-button"
+  )!;
+  const mobExpenseOptionsButton = document.getElementById(
+    "mobile-expense-options-button"
+  )!;
+  const groupsDiv = document.getElementById("groups-column")!;
+  const categoriesDiv = document.getElementById("categories-column")!;
+  const mobileMainExpenseOptionDiv = document.getElementById(
+    "main-space-groups-line"
+  )!;
+  const mainExpenseCardDiv = document.getElementById(
+    "main-space-expenses-card"
+  )!;
+  const expenseBoardDiv = document.getElementById("expense-board")!;
+
+  mobGroupsButton.addEventListener("click", () => {
+    toggleMobileRenderGroupsDiv(
+      groupsDiv,
+      categoriesDiv,
+      mobileMainExpenseOptionDiv,
+      mainExpenseCardDiv
+    );
+  });
+
+  mobExpenseOptionsButton.addEventListener("click", () => {
+    toggleMobileRenderExpenseOptionsDiv(
+      mobileMainExpenseOptionDiv,
+      groupsDiv,
+      categoriesDiv,
+      expenseBoardDiv,
+      mainExpenseCardDiv
+    );
+  });
+
+  mobCategoriesButton.addEventListener("click", () => {
+    toggleMobileRenderCategoryDiv(
+      categoriesDiv,
+      groupsDiv,
+      mobileMainExpenseOptionDiv,
+      mainExpenseCardDiv
+    );
+  });
+
+  console.log(window.innerWidth);
+</script>
+
+<!-- <script>
+  // TOGGLE METHODS
+
+  function toggleDisplayFlexToNone(element: HTMLElement) {
+    if (element.style.display === "flex" || element.style.display === "") {
+      element.style.display = "none";
+    } else {
+      element.style.display = "flex";
+    }
+  }
+
+  function toggleDisplayNoneToFlex(element: HTMLElement) {
+    if (element.style.display === "none" || element.style.display === "") {
+      element.style.display = "flex";
+    } else {
+      element.style.display = "none";
+    }
+  }
+
+  // EDIT MULTIPLE EXPENSES SCRIPT
+
+  const addSingleExpenseButtonSpace = document.getElementById(
+    "group-line-add-expense-button-space"
+  )!;
+  const addBankStatementButtonSpace = document.getElementById(
+    "group-line-add-bank-statement-button-space"
+  )!;
+  const editMultipleExpensesButtonSpace = document.getElementById(
+    "group-line-edit-multiple-expenses-button-space"
+  )!;
+  const deleteMultipleExpensesButtonSpace = document.getElementById(
+    "group-line-delete-multiple-expenses-button-space"
+  )!;
+  const renderMultipleExpensesEditingButton = document.getElementById(
+    "render-edit-multiple-expenses-interface-button"
+  )!;
+
+  const editMultipleExpensesSubmitButton = document.getElementById(
+    "submit-edit-multiple-expenses"
+  )!;
+  const deleteMultipleExpensesSubmitButton = document.getElementById(
+    "delete-multiple-expenses"
+  )!;
+  const toEditMultipleExpensesCategoryId = document.getElementById(
+    "expense-category-filter-select"
+  )! as HTMLInputElement;
+  const toEditMultipleExpensesGroupId = document.getElementById(
+    "expense-group-filter-select"
+  )! as HTMLInputElement;
+
+  const multipleExpensesCheckboxes = document.querySelectorAll(
+    ".multipleExpensesEditCheckboxes"
+  )! as NodeListOf<HTMLInputElement>;
+
+  renderMultipleExpensesEditingButton.addEventListener("click", () => {
+    multipleExpensesCheckboxes.forEach((checkbox) => {
+      if (checkbox.type === "checkbox") {
+        checkbox.type = "hidden";
+      } else {
+        checkbox.type = "checkbox";
+      }
+    });
+    toggleDisplayFlexToNone(addSingleExpenseButtonSpace);
+    toggleDisplayFlexToNone(addBankStatementButtonSpace);
+    toggleDisplayNoneToFlex(editMultipleExpensesButtonSpace);
+    toggleDisplayNoneToFlex(deleteMultipleExpensesButtonSpace);
+  });
+
+  editMultipleExpensesSubmitButton.addEventListener("click", (event) => {
+    debugger;
+    event.preventDefault();
+    const formData = new FormData();
+    multipleExpensesCheckboxes.forEach((checkbox) => {
+      if (checkbox.checked) {
+        formData.append("SelectedExpenseId", checkbox.value);
+      }
+    });
+    formData.append(
+      "ToEditExpensesCategoryId",
+      toEditMultipleExpensesCategoryId.value
+    );
+    formData.append(
+      "ToEditExpensesGroupId",
+      toEditMultipleExpensesGroupId.value
+    );
+    formData.append("FormId", "edit-multiple-expenses-form");
+
+    fetch("http://localhost:4321/main", {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(
+            "Network response not ok, no connection with astro server "
+          );
+        }
+        const queryString = window.location.search;
+        window.location.replace(`/main${queryString}`);
+      })
+
+      .catch((error) => {
+        console.log(`${error} during fetch`);
+      });
+  });
+
+  deleteMultipleExpensesSubmitButton.addEventListener("click", (event) => {
+    event.preventDefault();
+    const formData = new FormData();
+    multipleExpensesCheckboxes.forEach((checkbox) => {
+      if (checkbox.checked) {
+        formData.append("SelectedExpenseId", checkbox.value);
+      }
+    });
+    formData.append("FormId", "delete-multiple-expenses-form");
+    fetch("http://localhost:4321/main", {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(
+            "Network response not ok, no connection with astro server "
+          );
+        }
+        const queryString = window.location.search;
+        window.location.replace(`/main${queryString}`);
+      })
+
+      .catch((error) => {
+        console.log(`${error} during fetch`);
+      });
+  });
+
+  // COLUMN ELEMENT EDITING CLIENT SIDE RENDERING SCRIPT
+
+  const editGroupsButton = document.getElementById("edit-groups-button")!;
+  const editCategoriesButton = document.getElementById(
+    "edit-categories-button"
+  )!;
+
+  const groupElementEditOptionSpace = document.querySelectorAll(
+    ".columnGroupEditOptionsSpace"
+  ) as NodeListOf<HTMLElement>;
+  const categoryElementEditOptionSpace = document.querySelectorAll(
+    ".columnCategoryEditOptionsSpace"
+  ) as NodeListOf<HTMLElement>;
+
+  editGroupsButton.addEventListener("click", () => {
+    groupElementEditOptionSpace.forEach((editOptionsDiv) => {
+      toggleDisplayNoneToFlex(editOptionsDiv);
+    });
+  });
+
+  editCategoriesButton.addEventListener("click", () => {
+    categoryElementEditOptionSpace.forEach((editOptionsDiv) => {
+      toggleDisplayNoneToFlex(editOptionsDiv);
+    });
+  });
+
+  // GROUPS, CATEGORIES AND EXPENSES OPTIONS MOBILE RENDERING SCRIPT
+
+  function toggleMobileRenderGroupsDiv(
+    groupsDiv: HTMLElement,
+    categoriesDiv: HTMLElement,
+    mobileMainExpenseOptionDiv: HTMLElement,
+    mainExpenseSpaceDiv: HTMLElement
+  ) {
+    if (groupsDiv.style.display === "none" || groupsDiv.style.display === "") {
+      if (categoriesDiv.style.display === "flex") {
+        categoriesDiv.style.display = "none";
+      }
+      if (mobileMainExpenseOptionDiv.style.display === "flex") {
+        mobileMainExpenseOptionDiv.style.display = "none";
+        expenseBoardDiv.style.order = "2";
+        mobileMainExpenseOptionDiv.style.order = "1";
+        expenseBoardDiv.style.height = "100%";
+      }
+      groupsDiv.style.display = "flex";
+      groupsDiv.style.order = "3";
+      categoriesDiv.style.order = "1";
+      mainExpenseSpaceDiv.style.height = "40%";
+    } else {
+      groupsDiv.style.display = "none";
+      groupsDiv.style.order = "1";
+      categoriesDiv.style.order = "3";
+      mainExpenseSpaceDiv.style.height = "80%";
+    }
+  }
+
+  function toggleMobileRenderCategoryDiv(
+    categoriesDiv: HTMLElement,
+    groupsDiv: HTMLElement,
+    mobileMainExpenseOptionDiv: HTMLElement,
+    mainExpenseSpaceDiv: HTMLElement
+  ) {
+    if (
+      categoriesDiv.style.display === "none" ||
+      categoriesDiv.style.display === ""
+    ) {
+      if (groupsDiv.style.display === "flex") {
+        groupsDiv.style.display = "none";
+        groupsDiv.style.order = "1";
+        categoriesDiv.style.order = "3";
+      }
+      if (mobileMainExpenseOptionDiv.style.display === "flex") {
+        mobileMainExpenseOptionDiv.style.display = "none";
+        expenseBoardDiv.style.order = "2";
+        mobileMainExpenseOptionDiv.style.order = "1";
+        expenseBoardDiv.style.height = "100%";
+      }
+      categoriesDiv.style.display = "flex";
+      mainExpenseSpaceDiv.style.height = "40%";
+    } else {
+      categoriesDiv.style.display = "none";
+      mainExpenseSpaceDiv.style.height = "80%";
+    }
+  }
+
+  function toggleMobileRenderExpenseOptionsDiv(
+    mobileMainExpenseOptionDiv: HTMLElement,
+    groupsDiv: HTMLElement,
+    categoriesDiv: HTMLElement,
+    expenseBoardDiv: HTMLElement,
+    mainExpenseSpaceDiv: HTMLElement
+  ) {
+    if (
+      mobileMainExpenseOptionDiv.style.display === "none" ||
+      mobileMainExpenseOptionDiv.style.display === ""
+    ) {
+      if (groupsDiv.style.display === "flex") {
+        groupsDiv.style.display = "none";
+        groupsDiv.style.order = "1";
+        categoriesDiv.style.order = "3";
+        mainExpenseSpaceDiv.style.height = "80%";
+      }
+      if (categoriesDiv.style.display === "flex") {
+        categoriesDiv.style.display = "none";
+        mainExpenseSpaceDiv.style.height = "80%";
+      }
+      expenseBoardDiv.style.order = "1";
+      mobileMainExpenseOptionDiv.style.order = "2";
+      expenseBoardDiv.style.height = "80%";
+      mobileMainExpenseOptionDiv.style.height = "20%";
+      mobileMainExpenseOptionDiv.style.display = "flex";
+    } else {
+      expenseBoardDiv.style.order = "2";
+      mobileMainExpenseOptionDiv.style.order = "1";
+      expenseBoardDiv.style.height = "100%";
+      mobileMainExpenseOptionDiv.style.height = "10%";
+      mobileMainExpenseOptionDiv.style.display = "none";
+    }
+  }
+
+  const mobGroupsButton = document.getElementById("mobile-groups-button")!;
+  const mobCategoriesButton = document.getElementById(
+    "mobile-categories-button"
+  )!;
+  const mobExpenseOptionsButton = document.getElementById(
+    "mobile-expense-options-button"
+  )!;
+  const groupsDiv = document.getElementById("groups-column")!;
+  const categoriesDiv = document.getElementById("categories-column")!;
+  const mobileMainExpenseOptionDiv = document.getElementById(
+    "main-space-groups-line"
+  )!;
+  const mainExpenseCardDiv = document.getElementById(
+    "main-space-expenses-card"
+  )!;
+  const expenseBoardDiv = document.getElementById("expense-board")!;
+
+  mobGroupsButton.addEventListener("click", () => {
+    toggleMobileRenderGroupsDiv(
+      groupsDiv,
+      categoriesDiv,
+      mobileMainExpenseOptionDiv,
+      mainExpenseCardDiv
+    );
+  });
+
+  mobExpenseOptionsButton.addEventListener("click", () => {
+    toggleMobileRenderExpenseOptionsDiv(
+      mobileMainExpenseOptionDiv,
+      groupsDiv,
+      categoriesDiv,
+      expenseBoardDiv,
+      mainExpenseCardDiv
+    );
+  });
+
+  mobCategoriesButton.addEventListener("click", () => {
+    toggleMobileRenderCategoryDiv(
+      categoriesDiv,
+      groupsDiv,
+      mobileMainExpenseOptionDiv,
+      mainExpenseCardDiv
+    );
+  });
+
+  console.log(window.innerWidth);
+</script> -->
+
+<!-- CLIENT SIDE RENDERING EXPENSE SHARING -->
+<script>
+  function toggleDisplayFlexToNone(element: HTMLElement) {
+    if (element.style.display === "flex" || element.style.display === "") {
+      element.style.display = "none";
+    } else {
+      element.style.display = "flex";
+    }
+  }
+
+  function toggleDisplayNoneToFlex(element: HTMLElement) {
+    if (element.style.display === "none" || element.style.display === "") {
+      element.style.display = "flex";
+    } else {
+      element.style.display = "none";
+    }
+  }
+
+  const stepOneHLabel = document.getElementById("step-one-label");
+  const nextStepBtn = document.getElementById("next-step-share-expense")!;
+  const prevStepBtn = document.getElementById("previous-step-share-expense")!;
+  const friendListDiv = document.getElementById("friend-list-div")!;
+  const stepOneElements = document.querySelectorAll(
+    ".shareExpenseStepOne"
+  )! as NodeListOf<HTMLInputElement>;
+  const stepTwoElements = document.querySelectorAll(
+    ".shareExpenseStepTwo"
+  )! as NodeListOf<HTMLInputElement>;
+
+  const toShareUsersCheckBoxes = document.querySelectorAll(
+    ".userShareCheckBox"
+  )! as NodeListOf<HTMLInputElement>;
+
+  let toShareUsersIds: string[] = [];
+  toShareUsersCheckBoxes.forEach((checkbox) => {
+    if (checkbox.checked) {
+      toShareUsersIds.push(checkbox.value);
+    }
+  });
+
+  nextStepBtn.addEventListener("click", () => {
+    if (toShareUsersIds.length > 0) {
+      stepOneElements.forEach((div) => {
+        toggleDisplayFlexToNone(div);
+      });
+      toggleDisplayFlexToNone(friendListDiv);
+      stepTwoElements.forEach((divTwo) => {
+        toggleDisplayNoneToFlex(divTwo);
+      });
+    }
+    else {
+      stepOneHLabel
+    }
+  });
+
+  prevStepBtn.addEventListener("click", () => {
+    stepTwoElements.forEach((divTwo) => {
+      toggleDisplayFlexToNone(divTwo);
+    });
+    stepOneElements.forEach((divOne) => {
+      toggleDisplayNoneToFlex(divOne);
+    });
+    toggleDisplayNoneToFlex(friendListDiv);
+  });
+</script>
+
+<script>
+</script>

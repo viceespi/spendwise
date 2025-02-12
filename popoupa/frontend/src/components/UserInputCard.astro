@@ -1,0 +1,135 @@
+---
+import Button from "../components/Button.astro";
+
+interface Props {
+  description: string;
+  link1name: string;
+  link2name?: string;
+  link1ref: string;
+  link2ref?: string;
+}
+
+const { description, link1name, link2name, link1ref, link2ref } = Astro.props;
+---
+
+<div id="main-space-user-input-card">
+  <h2 class="lightText">{description}</h2>
+  <form>
+    <input type="text" name="Username" id="username" placeholder="Username" />
+    <input
+      type="password"
+      name="User Password"
+      id="userPassword"
+      placeholder="Password"
+    />
+    {
+      !link2name && (
+        <>
+          <input
+            type="password"
+            name="User Password Confirmation"
+            id="userPasswordConfirmation"
+            placeholder="Confirm Password"
+          />
+          <input
+            type="email"
+            name="User Email"
+            id="userEmail"
+            placeholder="Email"
+          />
+          <input
+            type="email"
+            name="User Email Confirmation"
+            id="userEmailConfirmation"
+            placeholder="Confirm Email"
+          />
+        </>
+      )
+    }
+  </form>
+  <Button
+    buttonName="Confirm"
+    buttonClass="mainHeaderBtn"
+    buttonId="confirmation-button"
+    buttonType="submit"
+  />
+  {
+    link2name && (
+      <a href={link2ref} class="darkText">
+        {link2name}
+      </a>
+    )
+  }
+  <a href={link1ref} class="darkText">{link1name}</a>
+</div>
+
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=Amatic+SC&display=swap");
+  #main-space-user-input-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #cf9f6e;
+    width: 50%;
+    height: 65vh;
+    border: 5px solid black;
+    border-radius: 10px;
+    margin-top: 3%;
+    margin-bottom: 3%;
+    justify-content: space-around;
+  }
+
+  #main-space-user-input-card form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #main-space-user-input-card h2 {
+    font-size: 3rem;
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+
+  #main-space-user-input-card form input {
+    font-size: 1.5rem;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    font-family: "Amatic SC", sans-serif;
+    width: 200%;
+  }
+
+  #main-space-user-input-card form input::placeholder {
+    font-family: "Amatic SC", sans-serif;
+  }
+
+  #main-space-user-input-card a {
+    font-size: 1.3rem;
+    text-decoration: none;
+  }
+  
+  @media screen and (max-width: 1200px) {
+    html {
+      font-size: 9px;
+    }
+
+    #main-space-user-input-card{
+      width: 80%;
+      height: 50vh;
+    }
+  }
+
+</style>
+
+<style>
+  @media screen and (max-width: 1200px) {
+    html {
+      font-size: 9px;
+    }
+
+    #main-space-user-input-card{
+      width: 100%;
+    }
+  }
+</style>

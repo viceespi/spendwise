@@ -1,0 +1,64 @@
+---
+import Button from "./Button.astro";
+
+interface Props {}
+
+const {} = Astro.props;
+---
+
+<button
+type="button"
+id="new-group-modal-open-btn">
+</button>
+
+<dialog id="new-group-modal" class="Modal">
+  <div class="modal-content">
+    <form method="POST" enctype="multipart/form-data" class="styleFlexColumn">
+      <input type="hidden" name="FormId" value="create-new-group-form" />
+      <label for="create-new-group-popover-content" class="darkText"
+        >Create Group!</label
+      >
+      <label for="NewGroupName" class="darkText"> Create a new Group! </label>
+      <input type="text" name="NewGroupName" id="new-group-name" required />
+      <Button
+        buttonType="submit"
+        buttonName="Submit"
+        buttonId="submit-new-group-form"
+        buttonClass="modalBtn"
+      />
+    </form>
+    <button
+    type="button"
+    id="new-group-modal-close-btn">
+    Close
+    </button>
+  </div>
+</dialog>
+
+<style>
+  .Modal {
+    background-color: #d5b690;
+    border-radius: 10px;
+  }
+
+  .modal-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+</style>
+
+<script>
+const openModalButton = document.getElementById("new-group-modal-open-btn")!;
+const closeModalButton = document.getElementById("new-group-modal-close-btn")!;
+const modal = document.getElementById("new-group-modal")! as HTMLDialogElement;
+
+openModalButton.addEventListener("click", () => {
+    modal.showModal();
+  });
+
+  closeModalButton.addEventListener("click", () => {
+    modal.close();
+  });
+</script>

@@ -1,0 +1,97 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+import PresentationCard from "../components/PresentationCard.astro";
+
+const cardHeight = "60%";
+const cardWidth = "16%";
+const titleSize = "2rem";
+const textSize = "1.5rem";
+---
+
+<MainLayout
+  button1Name="About Us!"
+  button1FontSize="2rem"
+  button2Name="Sign Up"
+  button2FontSize="2rem"
+>
+  <div id="about-us-slot">
+    <PresentationCard
+      imgSource="../../public/images/nenega.jpg"
+      imgAlt="nenega calamitosa"
+      title="Nina"
+      underText="Essa é a Nina, o que tem de fofa tem de ousada e brava!!"
+      cardHeight={cardHeight}
+      cardWidth={cardWidth}
+      titleSize={titleSize}
+      textSize={textSize}
+    />
+
+    <PresentationCard
+      imgSource="../../public/images/popozangus.jpg"
+      imgAlt="Popozangus"
+      title="Angus"
+      underText="Esse é o Angus, o que tem de fofo, você multiplica por 1000!"
+      cardHeight={cardHeight}
+      cardWidth={cardWidth}
+      titleSize={titleSize}
+      textSize={textSize}
+    />
+
+    <PresentationCard
+      imgSource="../../public/images/popocão.jpg"
+      imgAlt="Popoc Maligne"
+      title="Órion"
+      underText="Esse é o Órion, o que tem de fofo, tem de chato!!"
+      cardHeight={cardHeight}
+      cardWidth={cardWidth}
+      titleSize={titleSize}
+      textSize={textSize}
+    />
+
+    <PresentationCard
+      imgSource="../../public/images/thedeu.jpg"
+      imgAlt="thedeuzim"
+      title="Thadeu"
+      underText="Esse é o Thadeu. Amor, amigo, parceiro, tutor e meu maior apoiador!"
+      cardHeight={cardHeight}
+      cardWidth={cardWidth}
+      titleSize={titleSize}
+      textSize={textSize}
+    />
+
+    <PresentationCard
+      imgSource="../../public/images/vicenzo.jpg"
+      imgAlt="zangadinho"
+      title="Vicenzo"
+      underText="Juniorzinho que tá aprendendo a codar. Responsável pela criação e materialização desse site e suas funcionalidades!"
+      cardHeight={cardHeight}
+      cardWidth={cardWidth}
+      titleSize={titleSize}
+      textSize={textSize}
+    />
+  </div>
+</MainLayout>
+
+<style>
+  #about-us-slot {
+    height: 80vh;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  @media screen and (max-width: 900px) {
+    html {
+      font-size: 9px;
+    }
+
+    #about-us-slot {
+      flex-direction: column;
+      justify-content: space-around;
+      flex-wrap: nowrap;
+      overflow-y: auto;
+    }
+  }
+</style>

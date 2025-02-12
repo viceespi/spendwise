@@ -1,0 +1,43 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+---
+
+<MainLayout
+  button1Name="About Us!"
+  button1Id="about-us"
+  button1FontSize="2rem"
+  button2Name="Sign Up"
+  button2Id="login"
+  button2FontSize="2rem"
+>
+  <div id="support-info-slot">
+    <div id="main-space-user-input-card">
+        <h2 class="lightText">Contact Us!</h2>
+
+      </div>
+  </div>
+</MainLayout>
+
+<style>
+  #support-info-slot {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  #main-space-user-input-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #cf9f6e;
+    width: 50%;
+    height: 65vh;
+    border: 5px solid black;
+    border-radius: 10px;
+    margin-top: 3%;
+    margin-bottom: 3%;
+    justify-content: space-around;
+  }
+</style>

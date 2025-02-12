@@ -1,0 +1,30 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+import UserInputCard from "../components/UserInputCard.astro";
+---
+
+<MainLayout
+  button1Name="About Us!"
+  button1Id="about-us"
+  button1FontSize="2rem"
+  button2Name="Sign Up"
+  button2Id="login"
+  button2FontSize="2rem"
+>
+  <div id="user-registration-slot">
+    <UserInputCard
+      description="Sign up"
+      link1name="already a member? Login"
+      link1ref="/userLogin"
+    />
+  </div>
+</MainLayout>
+<style>
+  #user-registration-slot {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+</style>

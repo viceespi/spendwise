@@ -1,0 +1,82 @@
+---
+interface Props {
+  imgSource: string;
+  imgAlt: string;
+  title: string;
+  underText: string;
+  cardHeight: string;
+  cardWidth: string;
+  titleSize: string;
+  textSize: string;
+}
+
+const {
+  imgSource,
+  imgAlt,
+  title,
+  underText,
+  cardHeight,
+  cardWidth,
+  titleSize,
+  textSize,
+} = Astro.props;
+---
+
+<div class="photo-card">
+  <img src={imgSource} alt={imgAlt} />
+  <h1 class="darkText">{title}</h1>
+  <p class="darkText">{underText}</p>
+</div>
+
+<style
+  define:vars={{
+    cardHeight: cardHeight,
+    cardWidth: cardWidth,
+    titleSize: titleSize,
+    textSize: textSize,
+  }}
+>
+  .photo-card {
+    background-color: #cf9f6e;
+    border: 1px solid black;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    text-align: center;
+    height: var(--cardHeight);
+    width: var(--cardWidth);
+    border-radius: 10px;
+    width: 30%;
+    height: 45%;
+  }
+
+  .photo-card img {
+    margin: 2% 0%;
+    height: 60%;
+    width: 50%;
+  }
+
+  .photo-card h1 {
+    margin: auto;
+    font-size: var(--titleSize);
+  }
+
+  .photo-card p {
+    margin: auto;
+    font-size: var(--textSize);
+  }
+
+  @media screen and (max-width: 900px) {
+    .photo-card {
+      width: 70%;
+      height: 50%;
+      margin: 10%;
+    }
+
+    .photo-card img {
+      height: 70%;
+      width: 80%;
+    }
+  }
+</style>

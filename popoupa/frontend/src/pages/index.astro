@@ -1,0 +1,73 @@
+---
+import Button from "../components/Button.astro";
+import MainLayout from "../layouts/MainLayout.astro";
+---
+
+<MainLayout>
+  <div id="main-index">
+    <div>
+      <div class="container">
+        <h1 class="lightText">Transform your finances whit Popoupa!</h1>
+        <p class="lightText">
+          PoPoupa is your buddy for finances, helping you to categorize your
+          expenses to control your budget!
+        </p>
+      </div>
+
+      <div class="container">
+        <Button
+          buttonName="Try the demo!"
+          buttonId="sign-up"
+          buttonClass="signInBtn"
+          buttonType="button"
+        />
+      </div>
+    </div>
+  </div>
+</MainLayout>
+
+<style>
+  #main-index {
+    background-image: url("../../public/images/popoupa.jpg");
+    background-size: cover;
+    background-position: center;
+    z-index: 10;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+  }
+
+  #main-index div h1 {
+    font-size: 5rem;
+    margin-bottom: 20%;
+    text-align: center;
+  }
+
+  #main-index div p {
+    font-size: 3rem;
+    text-align: center;
+  }
+
+  .container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+  }
+
+  @media screen and (max-width: 1200px) {
+    html {
+      font-size: 9px;
+    }
+  }
+</style>
+
+<script>
+  let signUpButton = document.getElementById("sign-up");
+  signUpButton?.addEventListener("click", () => {
+    window.location.href = "main";
+  });
+</script>

@@ -1,0 +1,234 @@
+---
+interface Props {
+  expenseDate: string;
+  groupName?: string
+  expenseDescription: string;
+  expenseCategory: string;
+  expenseAmount: string;
+  expenseId: string;
+  currentGroupName: string;
+}
+
+const {
+  expenseDate,
+  groupName,
+  expenseDescription,
+  expenseCategory,
+  expenseAmount,
+  expenseId,
+  currentGroupName,
+} = Astro.props;
+---
+
+<div class="acorddion" id=`${expenseId}-acorddion`>
+  <div class="acorddionHeader" id=`${expenseId}-acorddion-header`>
+    <div class="expenseInfoContainerAmount">
+      <p class="prettyText expenseInfo">{expenseAmount}</p>
+    </div>
+    <div class="expenseInfoContainerDescription">
+      <p class="darkText expenseInfo">{expenseDescription}</p>
+    </div>
+    <div class="acorddionStateContainer">
+      <p id=`${expenseId}-acorddion-state` class="acorddionState lightText"></p>
+    </div>
+  </div>
+  <hr class="acorddionSeparation" id=`${expenseId}-acorddion-separation`>
+  <div class="acorddionContent" id=`${expenseId}-acorddion-content`>
+    <div class="expenseInfoContainer">
+      <p class="lightText contentInfo">Date</p>
+      <p class="darkText expenseInfo">{expenseDate}</p>
+    </div>
+    {
+      currentGroupName === "All Expenses" ? (
+        <div class="expenseInfoContainer">
+          <p class="lightText contentInfo">Group</p>
+          <p class="darkText expenseInfo">{groupName}</p>
+        </div>
+      ) : null
+    }
+    <div class="expenseInfoContainer">
+      <p class="lightText contentInfo">Category</p>
+      <p class="darkText expenseInfo">{expenseCategory}</p>
+    </div>
+    <div id="interaction-element-div"><slot name="containerSlot" /></div>
+    <div id="check-box-div">
+      <slot name="headerSlot"></slot>
+    </div>
+  </div>
+</div>
+
+<style>
+
+  .acorddion {
+    margin-top: 0.5%;
+    margin-bottom: 0.5%;
+    border: 2px solid black;
+    border-radius: 10px;
+    background-color: #d5b690;
+    font-size: 1.6rem;
+    cursor:pointer;
+    user-select: none;
+  }
+
+  .acorddionHeader {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    height: 5%;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    padding-left: 3%;
+    padding-right: 3%;
+
+  }
+  
+  .acorddionStateContainer{
+    display: flex;
+    justify-content: start;
+    align-items: center;
+  }
+  
+  .acorddionState {
+    margin: 0;
+    font-size: 3rem;
+    width: 50px;
+    flex-shrink: 0;
+  }
+
+  .acorddionState::before {
+    content: '+';
+  }
+
+  .acorddionSeparation {
+    display: none;
+    background-color: #d4a872;
+    margin: 0;
+  }
+  
+  .acorddionContent {
+    display: none;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    padding-left: 3%;
+  }
+
+  .active .acorddionHeader {
+    background-color: #d4a872;
+  }
+
+  .active .acorddionState::before {
+    content: '-';
+  }
+
+  .active .acorddionSeparation {
+    background-color: #d4a872;
+    display: block;
+    height: 0;
+  }
+
+  .active .acorddionContent {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 5%;
+    background-color: #d4a872;
+  }
+
+  .expenseInfoContainerDescription {
+    flex-grow: 1;
+    text-align: left;
+    overflow: hidden;
+    text-wrap: nowrap;
+  }
+
+  .expenseInfoContainerDescription p {
+    width: 80%;
+  }
+
+  .expenseInfoContainerAmount {
+    text-align: left;
+    width: 120px;
+    flex-shrink: 0;
+    color: #8B0000;
+  }
+
+  .expenseInfoContainer {
+    width: 30%;
+    margin: 0;
+  }
+
+  .contentInfo {
+    font-size: 1.5rem;
+    font-weight: bolder;
+    margin: 0;
+  }
+
+  .expenseInfo {
+    font-weight: bolder;
+    overflow: hidden;
+    text-wrap: nowrap;
+    text-overflow: ellipsis;
+    margin: 0;
+  }
+
+  #interaction-element-div {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    width: 40%;
+  }
+
+  #check-box-div {
+    padding-right: 6%;
+  }
+
+  @media (min-width: 769px) and (max-width: 1600px) {
+    .expenseInfoContainerAmount {
+      width: 120px;
+    }
+
+    .acorddionState {
+      width: 20px;
+    }
+  }
+
+  @media (min-width: 456px) and (max-width: 768px) {
+    .expenseInfoContainerAmount {
+      width: 100px;
+    }
+
+    .acorddionState {
+      width: 15px;
+    }
+  }
+
+  @media screen and (max-width: 455px) {
+    .expenseInfoContainerAmount {
+      width: 80px;
+    }
+
+    .acorddionState {
+      width: 15px;
+    }
+  }
+</style>
+
+<script
+define:vars={{
+  expenseId: expenseId,
+}}
+>
+  const acorddion = document.getElementById(expenseId + '-acorddion');
+  const acorddionHeader = document.getElementById(`${expenseId}-acorddion-header`);
+  const acorddionState = document.getElementById(`${expenseId}-acorddion-state`);
+  const accordionSeparation = document.getElementById(`${expenseId}-acorddion-separation`)
+  const acorddionContent = document.getElementById(`${expenseId}-acorddion-content`);
+
+  acorddionHeader.addEventListener("click", ()=> {
+    acorddion.classList.toggle("active");
+    acorddionHeader.classList.toggle("active");
+    acorddionState.classList.toggle("active");
+    accordionSeparation.classList.toggle("active");
+    acorddionContent.classList.toggle("active");
+  });
+</script>
