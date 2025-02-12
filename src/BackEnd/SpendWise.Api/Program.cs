@@ -10,8 +10,6 @@ using SpendWise.Domain.Validators;
 using SpendWise.Domain.Validators.Contracts;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddControllers();
-
 // Add scoped configures the service locator with the scoped lifetime
 // Service locator is responsible for creating instances of classes that are requested to it, like in dependency injection
 builder.Services.AddScoped<IExpenseManagementServices, ExpenseManagementServices>();
@@ -25,7 +23,20 @@ builder.Services.AddScoped<IDbConnection>(serviceLocator =>
     return new NpgsqlConnection(connectionString);
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: "AllowAnyOrigin", policy =>
+    {
+        policy.AllowAnyOrigin();
+        policy.AllowAnyHeader();
+        policy.AllowAnyMethod();
+    });
+});
+
+builder.Services.AddControllers();
+
 var app = builder.Build();
+app.UseCors("AllowAnyOrigin");
 app.MapControllers();
 
 app.Run();

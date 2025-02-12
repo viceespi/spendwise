@@ -1,0 +1,21 @@
+<div class="modalContent">
+  <div class="{{ size() }}">
+    <ng-content></ng-content>
+  </div>
+  <div class="buttonSpace">
+    <div class="closeBtnSpace">
+      <app-button-component
+        name="Close"
+        size="medium"
+        (clicked)="closeClicked.emit()"
+      />
+    </div>
+    <div class="submitBtnSpace">
+      <app-button-component
+        name="Submit"
+        size="medium"
+        (clicked)="submitClicked.emit()"
+      />
+    </div>
+  </div>
+</div>

@@ -34,7 +34,7 @@ namespace SpendWise.Domain.Repositories
                 VALUES
                 (@Description, @Date, @Amount)
                 RETURNING
-                id;
+                expense_id;
             ";
 
             Guid expenseId = await _connection.QueryFirstAsync<Guid>(sqlOrder, new
