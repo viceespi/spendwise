@@ -1,17 +1,23 @@
-<div>
+<div class="expenseLineContent">
   <div class="amount">
-    <p class="prettyText">-199,90</p>
+    <p class="prettyText">{{ localizedAmount() }}</p>
   </div>
   <div class="description">
-    <p class="prettyText">Muffato</p>
+    <p class="prettyText">{{ description() }}</p>
   </div>
-  <div class="edit">
-    <app-button-component name="Edit" size="small"></app-button-component>
-  </div>
-  <div class="delete">
-    <app-button-component name="Delete" size="small"></app-button-component>
+  <div class="buttonsSpace">
+    <app-button-component
+      name="Edit"
+      size="medium"
+      (clicked)="editClicked.emit()"
+    ></app-button-component>
+    <app-button-component
+      name="Delete"
+      size="medium"
+      (clicked)="deleteClicked.emit()"
+    ></app-button-component>
   </div>
   <div class="date">
-    <p class="prettyText">29/09/2024</p>
+    <p class="prettyText">{{ localizedDate() }}</p>
   </div>
 </div>

@@ -9,14 +9,14 @@ namespace SpendWise.Domain.Services.Contracts
 {
     public interface IExpenseManagementServices
     {
-        Task<Result<Guid>> CreateExpense(NewExpenseDTO newExpenseDTO);
+        Task<Result<Expense>> CreateExpense(NewExpenseDTO newExpenseDTO);
 
         Task<List<Expense>> GetAllExpenses();
 
-        Task<Expense?> GetExpense(Guid expenseId); 
+        Task<Expense?> GetExpense(Guid expenseId);
 
         Task DeleteExpense(Guid expenseId);
 
-        Task<Result<string>> UpdateExpense(ToUpdateExpenseDTO toUpdateExpenseDTO);
+        Task<Result<Expense>> UpdateExpense(ToUpdateExpenseDTO toUpdateExpenseDTO);
     }
 }

@@ -23,7 +23,7 @@ namespace SpendWise.Domain.Repositories
             _connection = connection;
         }
 
-        public async Task<Guid> CreateNewExpense(Expense expense)
+        public async Task<Expense> CreateNewExpense(Expense expenseDTO)
         {
             const string sqlOrder =
             @"
@@ -39,11 +39,13 @@ namespace SpendWise.Domain.Repositories
 
             Guid expenseId = await _connection.QueryFirstAsync<Guid>(sqlOrder, new
             {
-                Description = expense.Description,
-                Date = expense.Date,
-                Amount = expense.Amount
+                Description = expenseDTO.Description,
+                Date = expenseDTO.Date,
+                Amount = expenseDTO.Amount
             });
-            return expenseId;
+            Expense newExpense = new(expenseDTO.Description, expenseDTO.Date, expenseDTO.Amount, expenseId);
+
+            return newExpense;
         }
 
         public async Task DeleteExpense(Guid expenseId)
@@ -52,10 +54,15 @@ namespace SpendWise.Domain.Repositories
             @"
                 DELETE
                 FROM
-                expenses;
+                expenses
+                WHERE
+                expense_id = @Id;
             ";
 
-            await _connection.ExecuteAsync(sqlOrder);
+            await _connection.ExecuteAsync(sqlOrder, new
+            {
+                Id = expenseId
+            });
         }
 
         public async Task<List<Expense>> GetAllExpenses()
@@ -63,9 +70,13 @@ namespace SpendWise.Domain.Repositories
             const string sqlOrder =
             @"
                 SELECT
-                *
+                description AS Description,
+                date AS Date,
+                amount AS Amount,
+                expense_id AS Id
                 FROM
-                expenses;
+                expenses
+                ORDER BY date DESC;
             ";
 
             List<Expense> expenses = (await _connection.QueryAsync<Expense>(sqlOrder)).ToList();
@@ -84,11 +95,11 @@ namespace SpendWise.Domain.Repositories
                 expense_id = @Id
             ";
 
-            Expense? expense = await _connection.QueryFirstOrDefaultAsync<Expense>(sqlOrder, new
+            Expense? expenseDTO = await _connection.QueryFirstOrDefaultAsync<Expense>(sqlOrder, new
             {
                 Id = expenseId
             });
-            return expense;
+            return expenseDTO;
         }
 
         public async Task UpdateExpense(Expense toUpdateExpense)
@@ -97,7 +108,7 @@ namespace SpendWise.Domain.Repositories
             @"
                 UPDATE expenses
                 SET 
-                expense_id = @ExpenseId
+                expense_id = @ExpenseId,
                 description = @Description,
                 date = @Date,
                 amount = @Amount

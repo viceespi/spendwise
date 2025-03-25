@@ -1,0 +1,45 @@
+.inputContainer {
+  display: flex;
+  flex-direction: column;
+  height: 50px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.headerContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 5%;
+  margin-bottom: 5%;
+}
+
+.confirmationModalContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  width: 300px;
+  height: 400px;
+}
+
+.headerLabel {
+  font-size: 1.5rem;
+}
+
+.contentLabel {
+  font-size: 1rem;
+}
+
+.infoContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.buttonsSpace {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  width: 100%;
+}

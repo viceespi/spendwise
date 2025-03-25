@@ -13,7 +13,7 @@ namespace SpendWise.Domain.Services
     public class ExpenseManagementServices : IExpenseManagementServices
     {
         private readonly IExpenseRepository _repository;
-        
+
         private readonly IExpenseFactory _factory;
 
         public ExpenseManagementServices(IExpenseFactory factory, IExpenseRepository repository)
@@ -22,21 +22,21 @@ namespace SpendWise.Domain.Services
             this._repository = repository;
         }
 
-        public async Task<Result<Guid>> CreateExpense(NewExpenseDTO newExpenseDTO)
+        public async Task<Result<Expense>> CreateExpense(NewExpenseDTO newExpenseDTO)
         {
             Result<Expense> newExpenseResult = _factory.CreateExpenseFromNewExpenseDTO(newExpenseDTO);
             return await newExpenseResult.Match
             (
-                async (expense) =>
+                async (expenseDTO) =>
                 {
-                    Guid expenseId = await _repository.CreateNewExpense(expense);
-                    Result<Guid> successfullInputResult = new Result<Guid>(expenseId);
+                    Expense newExpense = await _repository.CreateNewExpense(expenseDTO);
+                    Result<Expense> successfullInputResult = new Result<Expense>(newExpense);
                     return successfullInputResult;
                 }
                 ,
                 (validationErrors) =>
                 {
-                    var failedInputResult = new Result<Guid>(validationErrors);
+                    var failedInputResult = new Result<Expense>(validationErrors);
                     return Task.FromResult(failedInputResult);
                 }
             );
@@ -59,7 +59,7 @@ namespace SpendWise.Domain.Services
             return expense;
         }
 
-        public async Task<Result<string>> UpdateExpense(ToUpdateExpenseDTO toUpdateExpenseDTO)
+        public async Task<Result<Expense>> UpdateExpense(ToUpdateExpenseDTO toUpdateExpenseDTO)
         {
             Result<Expense> newExpenseResult = _factory.CreateExpenseFromToUpdateExpenseDTO(toUpdateExpenseDTO);
             return await newExpenseResult.Match
@@ -67,13 +67,13 @@ namespace SpendWise.Domain.Services
                 async (expense) =>
                 {
                     await _repository.UpdateExpense(expense);
-                    Result<string> result = new("Expense updated");
+                    Result<Expense> result = new(expense);
                     return result;
                 }
                 ,
                 (validationErrors) =>
                 {
-                    var failedInputResult = new Result<string>(validationErrors);
+                    var failedInputResult = new Result<Expense>(validationErrors);
                     return Task.FromResult(failedInputResult);
                 }
             );

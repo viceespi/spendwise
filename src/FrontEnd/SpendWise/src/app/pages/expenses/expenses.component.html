@@ -1,2 +1,298 @@
-<app-action-bar-component></app-action-bar-component>
-<app-expense-line></app-expense-line>
+<app-action-bar-component
+  (singleExpenseModalOpen)="expenseCreationModal.showModal()"
+></app-action-bar-component>
+
+<app-expense-board
+  #expenseBoard
+  (expenseFetchErrorSignal)="expenseFetchInfoModal.showModal()"
+  (expenseCreationSucessfull)="
+    expenseCreatedInfoModal.showModal(); createIsSuccessfull.set(true)
+  "
+  (expenseCreationFailed)="
+    expenseCreatedInfoModal.showModal();
+    createIsSuccessfull.set(false);
+    expenseCreationErrors.set($event)
+  "
+  (expenseDeleteClicked)="
+    expenseDeletionConfirmationModal.showModal(); toDeleteExpenseId.set($event)
+  "
+  (expenseDeleteSuccessfull)="
+    expenseDeletionInfoModal.showModal(); deleteIsSuccessfull.set(true)
+  "
+  (expenseDeleteFailed)="
+    expenseDeletionInfoModal.showModal(); deleteIsSuccessfull.set(false)
+  "
+  (expenseUpdateClicked)="
+    expenseUpdateModal.showModal(); toUpdateExpense.set($event)
+  "
+  (expenseUpdateSuccessfull)="
+    expenseUpdateInfoModal.showModal(); updateIsSuccessfull.set(true)
+  "
+  (expenseUpdateFailed)="
+    expenseUpdateInfoModal.showModal();
+    updateIsSuccessfull.set(false);
+    expenseUpdateErrors.set($event)
+  "
+></app-expense-board>
+
+<dialog #expenseFetchInfoModal>
+  <app-info-modal size="medium" (closeClicked)="expenseFetchInfoModal.close()">
+    <div class="infoContainer">
+      <H1 class="prettyText">EXPENSE FETCHING FAILED!</H1>
+      <p class="prettyText">Server error!</p>
+    </div>
+  </app-info-modal>
+</dialog>
+
+<dialog #expenseCreationModal>
+  <app-submit-modal
+    size="medium"
+    (closeClicked)="expenseCreationModal.close()"
+    (submitClicked)="
+      expenseCreationModal.close();
+      CreateNewExpenseDTO();
+      expenseCreationConfirmationModal.showModal()
+    "
+  >
+    <label class="prettyText headerLabel">Create Expense!</label>
+    <div class="inputContainer">
+      <label class="prettyText contentLabel" for="newExpenseDescription"
+        >Expense Description</label
+      >
+      <input
+        #newExpenseDescription
+        type="text"
+        name="newExpenseDescription"
+        id="new-expense-description"
+      />
+    </div>
+    <div class="inputContainer">
+      <label class="prettyText contentLabel" for="newExpenseAmount"
+        >Expense Amount</label
+      >
+      <input
+        #newExpenseAmount
+        type="number"
+        name="newExpenseAmount"
+        id="new-expense-amount"
+        value="0"
+      />
+    </div>
+    <div class="inputContainer">
+      <label class="prettyText contentLabel" for="newExpenseDate"
+        >Expense Date</label
+      >
+      <input
+        #newExpenseDate
+        type="date"
+        name="newExpenseDate"
+        id="new-expense-date"
+        [value]="
+          formatedCurrentDate()[0] +
+          '-' +
+          formatedCurrentDate()[1] +
+          '-' +
+          formatedCurrentDate()[2]
+        "
+      />
+    </div>
+  </app-submit-modal>
+</dialog>
+
+<dialog #expenseCreationConfirmationModal>
+  <div class="confirmationModalContainer">
+    <div class="headerContainer">
+      <h1 class="prettyText">Confirm Creation?</h1>
+    </div>
+    <div class="buttonsSpace">
+      <div class="noBtnSpace">
+        <app-button-component
+          name="No"
+          size="medium"
+          (clicked)="
+            expenseCreationConfirmationModal.close();
+            expenseCreationModal.showModal()
+          "
+        />
+      </div>
+      <div class="yesBtnSpace">
+        <app-button-component
+          name="Yes"
+          size="medium"
+          (clicked)="
+            expenseCreationConfirmationModal.close();
+            expenseBoard.CreateExpenseCall(newExpenseDTOSignal()!)
+          "
+        />
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<dialog #expenseCreatedInfoModal>
+  <app-info-modal
+    size="medium"
+    (closeClicked)="expenseCreatedInfoModal.close()"
+  >
+    @if (createIsSuccessfull()){
+    <div class="headerContainer">
+      <h1 class="prettyText">EXPENSE CREATED SUCCESSFULLY!</h1>
+    </div>
+    } @else {
+    <div class="infoContainer">
+      <h1 class="prettyText">EXPENSE CREATION FAILED!</h1>
+      @for (error of expenseCreationErrors(); track error) {
+      <p class="prettyText">{{ error }}</p>
+      }
+    </div>
+    }
+  </app-info-modal>
+</dialog>
+
+<dialog #expenseDeletionConfirmationModal>
+  <div class="confirmationModalContainer">
+    <div class="headerContainer">
+      <h1 class="prettyText">Do you wish to delete this expense?</h1>
+    </div>
+    <div class="buttonsSpace">
+      <div class="noBtnSpace">
+        <app-button-component
+          name="No"
+          size="medium"
+          (clicked)="expenseDeletionConfirmationModal.close()"
+        />
+      </div>
+      <div class="yesBtnSpace">
+        <app-button-component
+          name="Yes"
+          size="medium"
+          (clicked)="
+            expenseDeletionConfirmationModal.close();
+            expenseBoard.DeleteExpenseCall(toDeleteExpenseId()!)
+          "
+        />
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<dialog #expenseDeletionInfoModal>
+  <app-info-modal
+    size="medium"
+    (closeClicked)="expenseDeletionInfoModal.close()"
+  >
+    @if (deleteIsSuccessfull()){
+    <div class="headerContainer">
+      <h1 class="prettyText">EXPENSE DELETED SUCCESSFULLY!</h1>
+    </div>
+    } @else {
+    <div class="infoContainer">
+      <h1 class="prettyText">EXPENSE DELETION FAILED!</h1>
+      <p class="prettyText">Internal Server Error!</p>
+    </div>
+    }
+  </app-info-modal>
+</dialog>
+
+<dialog #expenseUpdateModal>
+  <app-submit-modal
+    size="medium"
+    (closeClicked)="expenseUpdateModal.close()"
+    (submitClicked)="
+      expenseUpdateModal.close();
+      CreateToUpdateExpenseDTO();
+      expenseUpdateConfirmationModal.showModal()
+    "
+  >
+    <label class="prettyText headerLabel">Update Expense!</label>
+    <div class="inputContainer">
+      <label class="prettyText contentLabel" for="toUpdateExpenseDescription"
+        >Expense Description</label
+      >
+      <input
+        #toUpdateExpenseDescription
+        type="text"
+        name="toUpdateExpenseDescription"
+        id="to-update-expense-description"
+        [value]="toUpdateExpense()?.description"
+      />
+    </div>
+    <div class="inputContainer">
+      <label class="prettyText contentLabel" for="toUpdateExpenseAmount"
+        >Expense Amount</label
+      >
+      <input
+        #toUpdateExpenseAmount
+        type="number"
+        name="toUpdateExpenseAmount"
+        id="to-update-expense-amount"
+        [value]="toUpdateExpense()?.amount"
+      />
+    </div>
+    <div class="inputContainer">
+      <label class="prettyText contentLabel" for="toUpdateExpenseDate"
+        >Expense Date</label
+      >
+      <input
+        #toUpdateExpenseDate
+        type="date"
+        name="toUpdateExpenseDate"
+        id="to-update-expense-date"
+        [value]="
+          formatedToUpdateExpenseDate()[0] +
+          '-' +
+          formatedToUpdateExpenseDate()[1] +
+          '-' +
+          formatedToUpdateExpenseDate()[2]
+        "
+      />
+    </div>
+  </app-submit-modal>
+</dialog>
+
+<dialog #expenseUpdateConfirmationModal>
+  <div class="confirmationModalContainer">
+    <div class="headerContainer">
+      <h1 class="prettyText">Confirm update?</h1>
+    </div>
+    <div class="buttonsSpace">
+      <div class="noBtnSpace">
+        <app-button-component
+          name="No"
+          size="medium"
+          (clicked)="
+            expenseUpdateConfirmationModal.close();
+            expenseUpdateModal.showModal()
+          "
+        />
+      </div>
+      <div class="yesBtnSpace">
+        <app-button-component
+          name="Yes"
+          size="medium"
+          (clicked)="
+            expenseUpdateConfirmationModal.close();
+            expenseBoard.UpdateExpenseCall(toUpdateExpenseDTOSignal()!)
+          "
+        />
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<dialog #expenseUpdateInfoModal>
+  <app-info-modal size="medium" (closeClicked)="expenseUpdateInfoModal.close()">
+    @if (updateIsSuccessfull()){
+    <div class="headerContainer">
+      <h1 class="prettyText">EXPENSE UPDATED SUCCESSFULLY!</h1>
+    </div>
+    } @else {
+    <div class="infoContainer">
+      <h1 class="prettyText">EXPENSE UPDATE FAILED!</h1>
+      @for (error of expenseUpdateErrors(); track error) {
+      <p class="prettyText">{{ error }}</p>
+      }
+    </div>
+    }
+  </app-info-modal>
+</dialog>

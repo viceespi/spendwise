@@ -1,0 +1,9 @@
+@for (expense of expensesList(); track expense.id) {
+<app-expense-line
+  [description]="expense.description"
+  [date]="expense.date"
+  [amount]="expense.amount"
+  (deleteClicked)="expenseDeleteClicked.emit(expense.id)"
+  (editClicked)="expenseUpdateClicked.emit(expense)"
+></app-expense-line>
+}

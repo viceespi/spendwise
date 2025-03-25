@@ -2,37 +2,6 @@
   <app-button-component
     name="Add one expense!"
     size="big"
-    (clicked)="modal.showModal()"
+    (clicked)="singleExpenseModalOpen.emit()"
   ></app-button-component>
-  <dialog #modal>
-    <app-modal size="medium" (closeClicked)="modal.close()" (submitClicked)="createExpenseCall()">
-      <label class="prettyText headerLabel">Create Expense!</label>
-      <div class="inputContainer">
-        <label class="prettyText contentLabel" for="description"
-          >Expense Description</label
-        >
-        <input
-          #description
-          type="text"
-          name="description"
-          id="new-expense-description"
-        />
-      </div>
-      <div class="inputContainer">
-        <label class="prettyText contentLabel" for="amount"
-          >Expense Amount</label
-        >
-        <input
-          #amount
-          type="number"
-          name="amount"
-          id="new-expense-amount"
-        />
-      </div>
-      <div class="inputContainer">
-        <label class="prettyText contentLabel" for="date">Expense Date</label>
-        <input #date type="date" name="date" id="new-expense-date" />
-      </div>
-    </app-modal>
-  </dialog>
 </div>

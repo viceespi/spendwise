@@ -9,12 +9,17 @@ button {
 .big {
   height: 40px;
   min-width: fit-content;
+  width: 150px;
+}
+
+.medium {
+  height: 30px;
+  min-width: fit-content;
   width: 100px;
 }
 
 .small {
   height: 20px;
-   width: 100px;
+  min-width: fit-content;
+  width: 50px;
 }
-
-

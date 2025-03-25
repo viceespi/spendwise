@@ -25,13 +25,13 @@ namespace SpendWise.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateExpense([FromBody] NewExpenseDTO newExpenseDTO)
         {
-            Result<Guid> inputResult = await _expenseServices.CreateExpense(newExpenseDTO);
+            Result<Expense> inputResult = await _expenseServices.CreateExpense(newExpenseDTO);
             return inputResult.Match<IActionResult>
             (
 
-                expenseId =>
+                newExpense =>
                 {
-                    return Ok(expenseId);
+                    return Ok(newExpense);
                 }
                 ,
                 validationError =>
@@ -66,13 +66,13 @@ namespace SpendWise.Api.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateExpense([FromBody] ToUpdateExpenseDTO toUpdateExpenseDTO)
         {
-            Result<string> inputResult = await _expenseServices.UpdateExpense(toUpdateExpenseDTO);
+            Result<Expense> inputResult = await _expenseServices.UpdateExpense(toUpdateExpenseDTO);
             return inputResult.Match<IActionResult>
             (
 
-                successMessage =>
+                expense =>
                 {
-                    return Ok(successMessage);
+                    return Ok(expense);
                 }
                 ,
                 validationError =>
