@@ -5,16 +5,18 @@ using System.Threading.Tasks;
 
 namespace SpendWise.Domain.Models.ExpenseModels
 {
-    public class NewExpenseDTO
+    public class NewExpenseDto
     {
-        public NewExpenseDTO(string description, DateTime date, decimal amount)
+        public NewExpenseDto(string description, DateTime date, decimal amount, Guid ownerId)
         {
             Description = description;
             Date = date;
             Amount = amount;
+            OwnerId = ownerId;
         }
         public string Description { get; } = string.Empty;
         public DateTime Date { get; }
         public decimal Amount { get; }
+        public Guid OwnerId { get; }
     }
 }

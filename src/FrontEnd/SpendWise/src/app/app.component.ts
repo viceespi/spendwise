@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, computed, Signal } from '@angular/core';
 import { ButtonComponent } from './components/general-components/button/button.component';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { RouterOutlet, Router, RouterLink } from '@angular/router';
+import { SessionService } from './services/session.service';
 
 @Component({
   selector: 'app-root',
@@ -9,5 +10,17 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
   styleUrl: './app.component.css',
 })
 export class AppComponent {
+  constructor(private router: Router, private sessionService: SessionService) {}
+
   title = 'SpendWise';
+
+  currentUser = computed(() => this.sessionService.currentUser());
+
+  navigateToUserInfo() {
+    this.router.navigate(['/userInfo']);
+  }
+
+  navigateToHomePage() {
+    this.router.navigate(['/home']);
+  }
 }

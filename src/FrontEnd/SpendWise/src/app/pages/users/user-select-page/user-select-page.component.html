@@ -1,0 +1,16 @@
+<div class="mainSpace">
+  <div class="userSelectSpace">
+    <div class="titleSpace"><h1 class="prettyText">Select your user!</h1></div>
+    <div class="usersSpace">
+      @for (user of usersList(); track user.id) {
+      <div class="userSpace">
+        <app-button-component
+          [name]="user.name"
+          size="medium"
+          (clicked)="changeUser(user); goToExpensesPage()"
+        ></app-button-component>
+      </div>
+      }
+    </div>
+  </div>
+</div>

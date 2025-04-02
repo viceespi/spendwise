@@ -10,27 +10,33 @@ import {
 import { ExpenseLineComponent } from '../expense-line/expense-line.component';
 import { ExpensesService } from '../../../services/expenses.service';
 import { Expense } from '../../../models/Expense';
-import { NewExpenseDTO } from '../../../models/NewExpenseDTO';
-import { ToUpdateExpenseDTO } from '../../../models/ToUpdateExpenseDTO';
+import { NewExpenseDto } from '../../../models/NewExpenseDto';
+import { ToUpdateExpenseDto } from '../../../models/ToUpdateExpenseDto';
 import { HttpErrorResponse } from '@angular/common/http';
+import { SessionService } from '../../../services/session.service';
 
 @Component({
   selector: 'app-expense-board',
   imports: [ExpenseLineComponent],
   templateUrl: './expense-board.component.html',
   styleUrl: './expense-board.component.css',
-  providers: [ExpensesService],
 })
 export class ExpenseBoardComponent {
-  constructor(private expensesService: ExpensesService) {}
+  constructor(
+    private expensesService: ExpensesService,
+    private sessionService: SessionService
+  ) {}
+
+  currentUserId = computed<string>(
+    () => this.sessionService.currentUser()?.id!
+  );
 
   // EXPENSE FETCH
 
-  // pegar as expenses em ordem de data do DB
   expenseFetchErrorSignal = output<void>();
   expensesList = signal<Expense[]>([]);
   ngOnInit() {
-    this.expensesService.GetAllExpenses().subscribe({
+    this.expensesService.GetAllExpenses(this.currentUserId()).subscribe({
       next: (response) => {
         let newExpenseList: Expense[] = [];
         for (const object of response) {
@@ -39,7 +45,9 @@ export class ExpenseBoardComponent {
             amount: object.amount,
             date: new Date(object.date),
             id: object.id,
+            ownerId: object.ownerId,
           };
+          console.log(newExpense.date);
           newExpenseList.push(newExpense);
         }
         this.expensesList.update((expensesList) => newExpenseList);
@@ -87,24 +95,25 @@ export class ExpenseBoardComponent {
   expenseUpdateSuccessfull = output<void>();
   expenseUpdateFailed = output<string[]>();
 
-  UpdateExpenseCall(toUpdateExpenseDTO: ToUpdateExpenseDTO) {
-    this.expensesService.UpdateExpense(toUpdateExpenseDTO).subscribe({
+  UpdateExpenseCall(toUpdateExpenseDto: ToUpdateExpenseDto) {
+    this.expensesService.UpdateExpense(toUpdateExpenseDto).subscribe({
       next: (object) => {
         let updatedExpense: Expense = {
           description: object.description,
           amount: object.amount,
           date: new Date(object.date),
           id: object.id,
+          ownerId: object.ownerId,
         };
-        console.log('Expense updated successfully');
-        console.log(updatedExpense);
         let updatedExpensesList = this.expensesList();
         for (let i = 0; i < updatedExpensesList.length; i++) {
           if (updatedExpensesList[i].id === updatedExpense.id) {
             updatedExpensesList[i] = updatedExpense;
           }
         }
-        // realinhar as expenses baseadas em data quando uma nova for atualizada
+        updatedExpensesList.sort(
+          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+        );
         this.expensesList.update((expensesList) => updatedExpensesList);
         this.expenseUpdateErrors.set([]);
         this.expenseUpdateSuccessfull.emit();
@@ -129,8 +138,8 @@ export class ExpenseBoardComponent {
   expenseCreationSucessfull = output<void>();
   expenseCreationFailed = output<string[]>();
 
-  CreateExpenseCall(newExpenseDTO: NewExpenseDTO) {
-    this.expensesService.CreateExpense(newExpenseDTO).subscribe({
+  CreateExpenseCall(newExpenseDto: NewExpenseDto) {
+    this.expensesService.CreateExpense(newExpenseDto).subscribe({
       next: (object) => {
         this.expenseCreationErrors.set([]);
         let newExpense: Expense = {
@@ -141,18 +150,21 @@ export class ExpenseBoardComponent {
               Number(object.date.toString().substring(0, 4)),
               Number(object.date.toString().substring(5, 7)) - 1,
               Number(object.date.toString().substring(8, 10)),
-              0,
+              3,
               0,
               0
             )
           ),
           id: object.id,
+          ownerId: object.ownerId,
         };
-        console.log(object);
-        console.log(newExpense);
-        // realinhar as expenses baseadas em data quando uma nova for adicionada
+
+        console.log(`Expense criada data: ${newExpense.date}`);
         let updatedExpensesList = this.expensesList();
-        updatedExpensesList.unshift(newExpense);
+        updatedExpensesList.push(newExpense);
+        updatedExpensesList.sort(
+          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+        );
         this.expensesList.update((expensesList) => updatedExpensesList);
         this.expenseCreationSucessfull.emit();
       },

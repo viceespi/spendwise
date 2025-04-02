@@ -30,9 +30,9 @@ namespace SpendWise.Domain.Repositories
                 INSERT
                 INTO
                 expenses
-                (description, date, amount)
+                (description, date, amount, owner_id)
                 VALUES
-                (@Description, @Date, @Amount)
+                (@Description, @Date, @Amount, @OwnerId)
                 RETURNING
                 expense_id;
             ";
@@ -41,9 +41,10 @@ namespace SpendWise.Domain.Repositories
             {
                 Description = expenseDTO.Description,
                 Date = expenseDTO.Date,
-                Amount = expenseDTO.Amount
+                Amount = expenseDTO.Amount,
+                OwnerId = expenseDTO.OwnerId
             });
-            Expense newExpense = new(expenseDTO.Description, expenseDTO.Date, expenseDTO.Amount, expenseId);
+            Expense newExpense = new(expenseDTO.Description, expenseDTO.Date, expenseDTO.Amount, expenseId, expenseDTO.OwnerId);
 
             return newExpense;
         }
@@ -65,7 +66,7 @@ namespace SpendWise.Domain.Repositories
             });
         }
 
-        public async Task<List<Expense>> GetAllExpenses()
+        public async Task<List<Expense>> GetAllExpenses(Guid ownerId)
         {
             const string sqlOrder =
             @"
@@ -73,13 +74,16 @@ namespace SpendWise.Domain.Repositories
                 description AS Description,
                 date AS Date,
                 amount AS Amount,
-                expense_id AS Id
+                expense_id AS Id,
+                owner_id AS OwnerId
                 FROM
                 expenses
+                WHERE
+                owner_id = @OwnerId
                 ORDER BY date DESC;
             ";
 
-            List<Expense> expenses = (await _connection.QueryAsync<Expense>(sqlOrder)).ToList();
+            List<Expense> expenses = (await _connection.QueryAsync<Expense>(sqlOrder, new { OwnerId = ownerId})).ToList();
             return expenses;
         }
 
@@ -111,7 +115,8 @@ namespace SpendWise.Domain.Repositories
                 expense_id = @ExpenseId,
                 description = @Description,
                 date = @Date,
-                amount = @Amount
+                amount = @Amount,
+                owner_id = @OwnerId
                 WHERE 
                 expense_id = @ExpenseId;
             ";
@@ -121,7 +126,8 @@ namespace SpendWise.Domain.Repositories
                 Description = toUpdateExpense.Description,
                 Date = toUpdateExpense.Date,
                 Amount = toUpdateExpense.Amount,
-                ExpenseId = toUpdateExpense.Id
+                ExpenseId = toUpdateExpense.Id,
+                OwnerId = toUpdateExpense.OwnerId
             });
         }
     }

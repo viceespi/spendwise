@@ -1,5 +1,6 @@
-export interface NewExpenseDTO {
-    description: string;
-    amount: number;
-    date: Date;
+export interface NewExpenseDto {
+  description: string;
+  amount: number;
+  date: Date;
+  ownerId: string;
 }

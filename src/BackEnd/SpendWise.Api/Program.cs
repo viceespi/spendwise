@@ -12,10 +12,15 @@ using SpendWise.Domain.Validators.Contracts;
 var builder = WebApplication.CreateBuilder(args);
 // Add scoped configures the service locator with the scoped lifetime
 // Service locator is responsible for creating instances of classes that are requested to it, like in dependency injection
-builder.Services.AddScoped<IExpenseManagementServices, ExpenseManagementServices>();
+builder.Services.AddScoped<IExpenseManagementService, ExpenseManagementService>();
 builder.Services.AddScoped<IExpenseRepository, ExpenseRepository>();
 builder.Services.AddScoped<IExpenseFactory, ExpenseFactory>();
 builder.Services.AddScoped<IExpenseValidator, ExpenseValidator>();
+builder.Services.AddScoped<IUserManagementService, UserManagementService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserFactory, UserFactory>();
+builder.Services.AddScoped<IUserValidator, UserValidator>();
+
 builder.Services.AddScoped<IDbConnection>(serviceLocator =>
 {
     IConfiguration configuration = serviceLocator.GetRequiredService<IConfiguration>();

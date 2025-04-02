@@ -10,7 +10,7 @@ namespace SpendWise.Domain.Repositories.Contracts
     {
         Task<Expense> CreateNewExpense(Expense expenseDTO);
 
-        Task<List<Expense>> GetAllExpenses();
+        Task<List<Expense>> GetAllExpenses(Guid ownerId);
 
         Task<Expense?> GetExpense(Guid expenseId);
 

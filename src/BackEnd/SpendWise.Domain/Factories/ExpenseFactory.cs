@@ -18,30 +18,30 @@ namespace SpendWise.Domain.Factories
             this._validator = validator;
         }
 
-        public Result<Expense> CreateExpenseFromNewExpenseDTO(NewExpenseDTO newExpenseDTO)
+        public Result<Expense> CreateExpenseFromNewExpenseDto(NewExpenseDto newExpenseDto)
         {
-            Expense newExpense = new(newExpenseDTO.Description, newExpenseDTO.Date, newExpenseDTO.Amount, Guid.Empty);
+            Expense newExpense = new(newExpenseDto.Description, newExpenseDto.Date, newExpenseDto.Amount, Guid.Empty,  newExpenseDto.OwnerId);
             ValidationErrors expenseValidation = this._validator.Validate(newExpense);
             if (expenseValidation.HasError)
             {
-                Result<Expense> failedInputResult = new (expenseValidation); 
-                return failedInputResult;
+                Result<Expense> failedResult    = new (expenseValidation); 
+                return failedResult;
             }
-            Result<Expense> successfullInputResult = new(newExpense);
-            return successfullInputResult;
+            Result<Expense> successResult = new(newExpense);
+            return successResult;
         }
 
-        public Result<Expense> CreateExpenseFromToUpdateExpenseDTO(ToUpdateExpenseDTO toUpdateExpenseDTO)
+        public Result<Expense> CreateExpenseFromToUpdateExpenseDto(ToUpdateExpenseDto toUpdateExpenseDto)
         {
-            Expense updatedExpense = new(toUpdateExpenseDTO.Description, toUpdateExpenseDTO.Date, toUpdateExpenseDTO.Amount, toUpdateExpenseDTO.Id);
+            Expense updatedExpense = new(toUpdateExpenseDto.Description, toUpdateExpenseDto.Date, toUpdateExpenseDto.Amount, toUpdateExpenseDto.Id, toUpdateExpenseDto.OwnerId);
             ValidationErrors expenseValidation = this._validator.Validate(updatedExpense);
             if (expenseValidation.HasError)
             {
-                Result<Expense> failedInputResult = new (expenseValidation); 
-                return failedInputResult;
+                Result<Expense> failedResult    = new (expenseValidation); 
+                return failedResult;
             }
-            Result<Expense> successfullInputResult = new(updatedExpense);
-            return successfullInputResult;
+            Result<Expense> successResult = new(updatedExpense);
+            return successResult;
         }
 
     }

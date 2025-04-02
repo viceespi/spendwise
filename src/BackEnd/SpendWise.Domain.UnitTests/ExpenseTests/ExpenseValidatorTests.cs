@@ -20,7 +20,8 @@ namespace SpendWise.Domain.UnitTests
             DateTime date = new DateTime(2024, 9, 29);
             decimal amount = 20;
             Guid id = Guid.Empty;
-            Expense expense = new(description, date, amount, id);
+            Guid ownerId = Guid.Empty;
+            Expense expense = new(description, date, amount, id, ownerId);
             ExpenseValidator validator = new();
 
             // Act 
@@ -31,7 +32,6 @@ namespace SpendWise.Domain.UnitTests
 
             Assert.False(validatorErrors.HasError);
             Assert.Empty(validatorErrors.Errors);
-
         }
 
         [Fact]
@@ -43,7 +43,8 @@ namespace SpendWise.Domain.UnitTests
             DateTime date = new DateTime(2024, 9, 29);
             decimal amount = 20;
             Guid id = Guid.Empty;
-            Expense expense = new(description, date, amount, id);
+            Guid ownerId = Guid.Empty;
+            Expense expense = new(description, date, amount, id, ownerId);
             ExpenseValidator validator = new();
 
             // Act 
@@ -54,7 +55,6 @@ namespace SpendWise.Domain.UnitTests
 
             Assert.True(validatorErrors.HasError);
             Assert.Contains("The description is empty!", validatorErrors.Errors);
-
         }
 
         [Fact]
@@ -66,7 +66,8 @@ namespace SpendWise.Domain.UnitTests
             DateTime date = new DateTime(2024, 9, 29);
             decimal amount = 20;
             Guid id = Guid.Empty;
-            Expense expense = new(description, date, amount, id);
+            Guid ownerId = Guid.Empty;
+            Expense expense = new(description, date, amount, id, ownerId);
             ExpenseValidator validator = new();
 
             // Act 
@@ -76,8 +77,8 @@ namespace SpendWise.Domain.UnitTests
             // Assert
 
             Assert.True(validatorErrors.HasError);
-            Assert.Contains("Expense description is invalid! It must have less than 250 characters!", validatorErrors.Errors);
-
+            Assert.Contains("Expense description is invalid! It must have less than 250 characters!",
+                validatorErrors.Errors);
         }
 
         [Fact]
@@ -89,7 +90,8 @@ namespace SpendWise.Domain.UnitTests
             DateTime date = new DateTime(2024, 9, 29);
             decimal amount = 20;
             Guid id = Guid.Empty;
-            Expense expense = new(description, date, amount, id);
+            Guid ownerId = Guid.Empty;
+            Expense expense = new(description, date, amount, id, ownerId);
             ExpenseValidator validator = new();
 
             // Act 
@@ -99,8 +101,8 @@ namespace SpendWise.Domain.UnitTests
             // Assert
 
             Assert.True(validatorErrors.HasError);
-            Assert.Contains("Expense description is invalid! It must have more than 1 character!", validatorErrors.Errors);
-
+            Assert.Contains("Expense description is invalid! It must have more than 1 character!",
+                validatorErrors.Errors);
         }
 
         [Fact]
@@ -112,7 +114,8 @@ namespace SpendWise.Domain.UnitTests
             DateTime date = new DateTime(3000, 9, 29);
             decimal amount = 20;
             Guid id = Guid.Empty;
-            Expense expense = new(description, date, amount, id);
+            Guid ownerId = Guid.Empty;
+            Expense expense = new(description, date, amount, id, ownerId);
             ExpenseValidator validator = new();
 
             // Act 
@@ -123,7 +126,6 @@ namespace SpendWise.Domain.UnitTests
 
             Assert.True(validatorErrors.HasError);
             Assert.Contains("Expense date is invalid!", validatorErrors.Errors);
-
         }
 
         [Fact]
@@ -135,7 +137,8 @@ namespace SpendWise.Domain.UnitTests
             DateTime date = new DateTime(2024, 9, 29);
             decimal amount = 0;
             Guid id = Guid.Empty;
-            Expense expense = new(description, date, amount, id);
+            Guid ownerId = Guid.Empty;
+            Expense expense = new(description, date, amount, id, ownerId);
             ExpenseValidator validator = new();
 
             // Act 
@@ -146,7 +149,6 @@ namespace SpendWise.Domain.UnitTests
 
             Assert.True(validatorErrors.HasError);
             Assert.Contains("Expense amount is invalid! It must be more than 0 BRL!", validatorErrors.Errors);
-
         }
 
         [Fact]
@@ -158,7 +160,8 @@ namespace SpendWise.Domain.UnitTests
             DateTime date = new DateTime(2024, 9, 29);
             decimal amount = 10000000001;
             Guid id = Guid.Empty;
-            Expense expense = new(description, date, amount, id);
+            Guid ownerId = Guid.Empty;
+            Expense expense = new(description, date, amount, id, ownerId);
             ExpenseValidator validator = new();
 
             // Act 
@@ -168,8 +171,8 @@ namespace SpendWise.Domain.UnitTests
             // Assert
 
             Assert.True(validatorErrors.HasError);
-            Assert.Contains("Expense amount is invalid! It must be less than 10.000.000.000 BRL!", validatorErrors.Errors);
-
+            Assert.Contains("Expense amount is invalid! It must be less than 10.000.000.000 BRL!",
+                validatorErrors.Errors);
         }
     }
 }

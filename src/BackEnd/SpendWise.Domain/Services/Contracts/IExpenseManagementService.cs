@@ -7,16 +7,16 @@ using SpendWise.Domain.Models.GlobalModels;
 
 namespace SpendWise.Domain.Services.Contracts
 {
-    public interface IExpenseManagementServices
+    public interface IExpenseManagementService
     {
-        Task<Result<Expense>> CreateExpense(NewExpenseDTO newExpenseDTO);
+        Task<Result<Expense>> CreateExpense(NewExpenseDto newExpenseDto);
 
-        Task<List<Expense>> GetAllExpenses();
+        Task<List<Expense>> GetAllExpenses(Guid ownerId);
 
         Task<Expense?> GetExpense(Guid expenseId);
 
         Task DeleteExpense(Guid expenseId);
 
-        Task<Result<Expense>> UpdateExpense(ToUpdateExpenseDTO toUpdateExpenseDTO);
+        Task<Result<Expense>> UpdateExpense(ToUpdateExpenseDto toUpdateExpenseDto);
     }
 }

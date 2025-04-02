@@ -10,26 +10,26 @@ using SpendWise.Domain.Services.Contracts;
 
 namespace SpendWise.Domain.Services
 {
-    public class ExpenseManagementServices : IExpenseManagementServices
+    public class ExpenseManagementService : IExpenseManagementService
     {
         private readonly IExpenseRepository _repository;
 
         private readonly IExpenseFactory _factory;
 
-        public ExpenseManagementServices(IExpenseFactory factory, IExpenseRepository repository)
+        public ExpenseManagementService(IExpenseFactory factory, IExpenseRepository repository)
         {
             this._factory = factory;
             this._repository = repository;
         }
 
-        public async Task<Result<Expense>> CreateExpense(NewExpenseDTO newExpenseDTO)
+        public async Task<Result<Expense>> CreateExpense(NewExpenseDto newExpenseDto)
         {
-            Result<Expense> newExpenseResult = _factory.CreateExpenseFromNewExpenseDTO(newExpenseDTO);
+            Result<Expense> newExpenseResult = _factory.CreateExpenseFromNewExpenseDto(newExpenseDto);
             return await newExpenseResult.Match
             (
-                async (expenseDTO) =>
+                async (expenseDto) =>
                 {
-                    Expense newExpense = await _repository.CreateNewExpense(expenseDTO);
+                    Expense newExpense = await _repository.CreateNewExpense(expenseDto);
                     Result<Expense> successfullInputResult = new Result<Expense>(newExpense);
                     return successfullInputResult;
                 }
@@ -47,9 +47,9 @@ namespace SpendWise.Domain.Services
             await _repository.DeleteExpense(expenseId);
         }
 
-        public async Task<List<Expense>> GetAllExpenses()
+        public async Task<List<Expense>> GetAllExpenses(Guid ownerId)
         {
-            List<Expense> expenses = await _repository.GetAllExpenses();
+            List<Expense> expenses = await _repository.GetAllExpenses(ownerId);
             return expenses;
         }
 
@@ -59,9 +59,9 @@ namespace SpendWise.Domain.Services
             return expense;
         }
 
-        public async Task<Result<Expense>> UpdateExpense(ToUpdateExpenseDTO toUpdateExpenseDTO)
+        public async Task<Result<Expense>> UpdateExpense(ToUpdateExpenseDto toUpdateExpenseDto)
         {
-            Result<Expense> newExpenseResult = _factory.CreateExpenseFromToUpdateExpenseDTO(toUpdateExpenseDTO);
+            Result<Expense> newExpenseResult = _factory.CreateExpenseFromToUpdateExpenseDto(toUpdateExpenseDto);
             return await newExpenseResult.Match
             (
                 async (expense) =>

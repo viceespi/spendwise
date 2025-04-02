@@ -1,0 +1,15 @@
+<div class="mainSpace">
+  <div class="userInfoSpace">
+    <h1 class="userName prettyText">{{ currentUser()?.name }}</h1>
+    <div class="friendsSpace">
+      @for (friend of userFriends(); track friend.id) {
+      <div class="friendSpace">
+        <app-button-component
+          [name]="friend.name"
+          size="big"
+        ></app-button-component>
+      </div>
+      }
+    </div>
+  </div>
+</div>

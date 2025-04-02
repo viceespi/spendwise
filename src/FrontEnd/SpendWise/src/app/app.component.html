@@ -1,6 +1,15 @@
 <header>
-  <h1 class="prettyText logo">SpendWise</h1>
-  <app-button-component name="Login" size="big"></app-button-component>
+  <a class="logo" (click)="navigateToHomePage()">
+    <h1 class="prettyText">SpendWise</h1></a
+  >
+
+  @if (currentUser(); as user) {
+  <app-button-component
+    [name]="user.name"
+    size="big"
+    (clicked)="navigateToUserInfo()"
+  ></app-button-component>
+  }
 </header>
 <main>
   <router-outlet />

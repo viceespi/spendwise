@@ -1,0 +1,38 @@
+.mainSpace {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.userInfoSpace {
+  height: 50%;
+  width: 50%;
+  background-color: #dce0e8;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 5%;
+  padding-bottom: 5%;
+}
+
+.friendsSpace {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 90%;
+  height: 70%;
+  border-radius: 10px;
+  background-color: #ccd0da;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.friendSpace {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}

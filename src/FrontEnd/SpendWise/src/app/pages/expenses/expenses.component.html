@@ -50,7 +50,7 @@
     (closeClicked)="expenseCreationModal.close()"
     (submitClicked)="
       expenseCreationModal.close();
-      CreateNewExpenseDTO();
+      createNewExpenseDTO();
       expenseCreationConfirmationModal.showModal()
     "
   >
@@ -121,7 +121,8 @@
           size="medium"
           (clicked)="
             expenseCreationConfirmationModal.close();
-            expenseBoard.CreateExpenseCall(newExpenseDTOSignal()!)
+            clearExpenseCreationCache();
+            expenseBoard.CreateExpenseCall(newExpenseDtoSignal()!)
           "
         />
       </div>
@@ -200,7 +201,7 @@
     (closeClicked)="expenseUpdateModal.close()"
     (submitClicked)="
       expenseUpdateModal.close();
-      CreateToUpdateExpenseDTO();
+      createToUpdateExpenseDto();
       expenseUpdateConfirmationModal.showModal()
     "
   >
@@ -272,7 +273,7 @@
           size="medium"
           (clicked)="
             expenseUpdateConfirmationModal.close();
-            expenseBoard.UpdateExpenseCall(toUpdateExpenseDTOSignal()!)
+            expenseBoard.UpdateExpenseCall(toUpdateExpenseDtoSignal()!)
           "
         />
       </div>

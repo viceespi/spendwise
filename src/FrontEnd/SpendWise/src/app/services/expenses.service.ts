@@ -1,9 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { NewExpenseDTO } from '../models/NewExpenseDTO';
 import { Expense } from '../models/Expense';
-import { ToUpdateExpenseDTO } from '../models/ToUpdateExpenseDTO';
+import { ToUpdateExpenseDto } from '../models/ToUpdateExpenseDto';
+import { NewExpenseDto } from '../models/NewExpenseDto';
 
 @Injectable({
   providedIn: null,
@@ -11,10 +11,10 @@ import { ToUpdateExpenseDTO } from '../models/ToUpdateExpenseDTO';
 export class ExpensesService {
   constructor(private http: HttpClient) {}
 
-  CreateExpense(newExpenseDTO: NewExpenseDTO): Observable<Expense> {
+  CreateExpense(newExpenseDto: NewExpenseDto): Observable<Expense> {
     return this.http.post<Expense>(
       'http://localhost:5029/expenses',
-      newExpenseDTO
+      newExpenseDto
     );
   }
 
@@ -24,16 +24,18 @@ export class ExpensesService {
     );
   }
 
-  UpdateExpense(toUpdateExpenseDTO: ToUpdateExpenseDTO): Observable<Expense> {
+  UpdateExpense(toUpdateExpenseDto: ToUpdateExpenseDto): Observable<Expense> {
     return this.http.put<Expense>(
       'http://localhost:5029/expenses',
-      toUpdateExpenseDTO
+      toUpdateExpenseDto
     );
   }
 
   GetExpense() {}
 
-  GetAllExpenses(): Observable<Expense[]> {
-    return this.http.get<Expense[]>('http://localhost:5029/expenses');
+  GetAllExpenses(ownerId: string): Observable<Expense[]> {
+    return this.http.get<Expense[]>(
+      `http://localhost:5029/expenses?ownerId=${ownerId}`
+    );
   }
 }

@@ -1,0 +1,33 @@
+<div class="homeMain">
+  <div class="introTextDiv">
+    <h1 class="prettyText logo">SpendWise</h1>
+    <p class="prettyText description">
+      SpendWise is a personal finance management project where users can record
+      and track their expenses. It includes features such as categorizing
+      expenses into groups and categories for better tracking, importing bank
+      statements to generate multiple records at once, and sharing expenses with
+      other users on the platform.
+    </p>
+
+    @if (currentUser(); as user) {
+    <div class="userOptions">
+      <app-button-component
+        name="Go to Expenses page!"
+        size="big"
+        (clicked)="navigateToExpensePage()"
+      ></app-button-component>
+      <app-button-component
+        name="Change User!"
+        size="big"
+        (clicked)="navigateToUserSelection()"
+      ></app-button-component>
+    </div>
+    } @else {
+    <app-button-component
+      name="Choose a user to start!"
+      size="big"
+      (clicked)="navigateToUserSelection()"
+    ></app-button-component>
+    }
+  </div>
+</div>
